@@ -23,6 +23,7 @@ public class Movement : MonoBehaviour
     [SerializeField] private int _maxSpeed;
     [SerializeField] private int _turnSpeed;
     [SerializeField] private float _realGravity;
+    [SerializeField] private float _jumpValue;
 
 
     private void Start()
@@ -72,6 +73,7 @@ public class Movement : MonoBehaviour
         CheckCollisionRight();
         CheckCollisionLeft();
         CheckCollisionDown();
+        CheckCollisionUp();
 
     }
 
@@ -107,9 +109,9 @@ public class Movement : MonoBehaviour
     private void CheckCollisionRight()
     {
         bool collid=false;        
-        RaycastHit2D[] first = Physics2D.RaycastAll(transform.position + new Vector3(box.size.x / 2, -box.size.x / 2), new Vector2(1, 0), _speed * Time.deltaTime * 3);
+        RaycastHit2D[] first = Physics2D.RaycastAll(transform.position + new Vector3(box.size.x / 2, -box.size.x / 4), new Vector2(1, 0), _speed * Time.deltaTime * 3);
         RaycastHit2D[] second = Physics2D.RaycastAll(transform.position + new Vector3(box.size.x / 2, 0), new Vector2(1, 0), _speed * Time.deltaTime * 3);
-        RaycastHit2D[] third = Physics2D.RaycastAll(transform.position + new Vector3(box.size.x / 2, box.size.x / 2), new Vector2(1, 0), _speed * Time.deltaTime * 3);
+        RaycastHit2D[] third = Physics2D.RaycastAll(transform.position + new Vector3(box.size.x / 2, box.size.x / 4), new Vector2(1, 0), _speed * Time.deltaTime * 3);
         
         RaycastHit2D[] hitsRight = third.Concat(first.Concat(second).ToArray()).ToArray();
         for (int i = 0; i < hitsRight.Length; i++)
@@ -129,9 +131,9 @@ public class Movement : MonoBehaviour
     private void CheckCollisionLeft()
     {
         bool colid = false;
-        RaycastHit2D[] first = Physics2D.RaycastAll(transform.position - new Vector3(box.size.x / 2, -box.size.x / 2), new Vector2(-1, 0), -_speed * Time.deltaTime * 3);
+        RaycastHit2D[] first = Physics2D.RaycastAll(transform.position - new Vector3(box.size.x / 2, -box.size.x / 4), new Vector2(-1, 0), -_speed * Time.deltaTime * 3);
         RaycastHit2D[] second = Physics2D.RaycastAll(transform.position - new Vector3(box.size.x / 2, 0), new Vector2(-1, 0), -_speed * Time.deltaTime * 3);
-        RaycastHit2D[] third = Physics2D.RaycastAll(transform.position - new Vector3(box.size.x / 2, box.size.x / 2), new Vector2(-1, 0),- _speed * Time.deltaTime * 3);
+        RaycastHit2D[] third = Physics2D.RaycastAll(transform.position - new Vector3(box.size.x / 2, box.size.x / 4), new Vector2(-1, 0),- _speed * Time.deltaTime * 3);
         RaycastHit2D[] hitsLeft = third.Concat(first.Concat(second).ToArray()).ToArray();
 
         for (int i = 0; i < hitsLeft.Length; i++)
@@ -148,6 +150,10 @@ public class Movement : MonoBehaviour
         if (!colid) { _canMovingLeft = true; }
     }
 
+    private void CheckCollisionUp()
+    {
+        //to be coded
+    }
     private void CheckCollisionDown()
     {
         bool colid = false;
@@ -165,4 +171,13 @@ public class Movement : MonoBehaviour
         }
         if (!colid) { _gravity = _realGravity; }
     }
+
+    public void Jump(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            _position += new Vector3(0, _jumpValue,0);
+        }
+    }
+
 }

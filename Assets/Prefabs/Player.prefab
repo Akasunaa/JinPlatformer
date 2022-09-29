@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 3228177310480514872}
   - component: {fileID: 3228177310480514871}
   - component: {fileID: -8977058196425551435}
-  - component: {fileID: 2398530318011864634}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -130,7 +129,19 @@ MonoBehaviour:
     m_ActionId: 94be4afb-b9b7-4747-8806-7174ecc02129
     m_ActionName: Player/Move[/Keyboard/upArrow,/Keyboard/downArrow,/Keyboard/leftArrow,/Keyboard/rightArrow]
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 3228177310480514871}
+        m_TargetAssemblyTypeName: Movement, Assembly-CSharp
+        m_MethodName: Jump
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 79968160-7e86-4296-8ba7-0071595caedc
     m_ActionName: Player/Jump[/Keyboard/space]
   - m_PersistentCalls:
@@ -170,6 +181,8 @@ MonoBehaviour:
   _deceleration: 8
   _maxSpeed: 10
   _turnSpeed: 1
+  _realGravity: 0.5
+  _jumpValue: 1
 --- !u!61 &-8977058196425551435
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -196,15 +209,3 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
---- !u!114 &2398530318011864634
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3228177310480514875}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 195a01551a2f14a4ea5e551bdeeb6ddf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
