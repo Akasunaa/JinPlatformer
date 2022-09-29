@@ -13,13 +13,15 @@ public class Movement : MonoBehaviour
 
     private bool _isMovingLeft = false;
     private bool _canMovingLeft = true;
-    private bool _gigatest = false;
+
+    private bool _canMovingDown = true;
 
     private BoxCollider2D box;
     [SerializeField] private int _acceleration;
     [SerializeField] private int _deceleration;
     [SerializeField] private int _maxSpeed;
     [SerializeField] private int _turnSpeed;
+    private float _gravity=0.5f;
 
     private void Start()
     {
@@ -30,36 +32,26 @@ public class Movement : MonoBehaviour
     {
 
         //todo : déplacer si tout est bien ?
+        //todo : lerp
+        //todo : rajouter des raycast
 
 
-        _position += new Vector3(_speed*Time.deltaTime,0,0);
+        _position += new Vector3(_speed*Time.deltaTime, -_gravity * Time.deltaTime, 0);
         transform.position = _position;
 
-
-
-
-
-
         if (_isMovingRight && _speed < _maxSpeed)
-        {
-            
+        {         
             if (_canMovingRight)
             {
                  _speed += _acceleration * Time.deltaTime; 
-            }
-
-            //if (_speed < 0) { _speed = _turnSpeed; }
-        
+            }   
         }
         else if (_isMovingLeft && _speed > -_maxSpeed )
         {
-            
-            //if (_speed > 0) { _speed = -_turnSpeed; }
             if (_canMovingLeft)
             {
                 _speed -= _acceleration * Time.deltaTime;
             }
-
         }
         else if(!_isMovingRight && !_isMovingLeft)
         {
@@ -74,9 +66,9 @@ public class Movement : MonoBehaviour
             else { _speed = 0; }
         }
 
-
         CheckCollisionRight();
         CheckCollisionLeft();
+        CheckCollisionDown();
 
     }
 
@@ -111,43 +103,59 @@ public class Movement : MonoBehaviour
 
     private void CheckCollisionRight()
     {
-        RaycastHit2D[] hitsRight = Physics2D.RaycastAll(transform.position + new Vector3(box.size.x / 2, 0), new Vector2(1, 0), box.size.x*3);
-        Debug.DrawRay(transform.position + new Vector3(box.size.x / 2, 0), new Vector2(1, 0) * _speed * Time.deltaTime);
+        bool collid=false;
+        RaycastHit2D[] hitsRight = Physics2D.RaycastAll(transform.position + new Vector3(box.size.x / 2, 0), new Vector2(1, 0), _speed * Time.deltaTime * 3);
+        Debug.DrawRay(transform.position + new Vector3(box.size.x / 2, 0,0), new Vector2(1, 0) * _speed * Time.deltaTime);
         for (int i = 0; i < hitsRight.Length; i++)
         {
             if (hitsRight[i].collider != null && hitsRight[i].collider.tag == "Wall" && _canMovingRight == true && hitsRight[i].distance< _speed * Time.deltaTime)
             {
-                this.gameObject.transform.position += new Vector3(_speed/2 * Time.deltaTime, 0, 0);
+                _position += new Vector3(hitsRight[i].distance, 0, 0);
                 _speed = 0;
-
                 _canMovingRight = false;
+                collid = true;
                 break;
             }
-            if (i == hitsRight.Length - 1) { _canMovingRight = true; }
         }
+        if(!collid){ _canMovingRight = true;}
     }
 
     private void CheckCollisionLeft()
     {
-        print(_canMovingLeft);
-        RaycastHit2D[] hitsLeft = Physics2D.RaycastAll(transform.position - new Vector3(box.size.x/2, 0), new Vector2(-1, 0), box.size.x*3);
-        Debug.DrawRay(transform.position - new Vector3(box.size.x/2, 0), new Vector2(-1, 0)* -_speed * Time.deltaTime);
-        _gigatest = true;
+        bool colid = false;
+        RaycastHit2D[] hitsLeft = Physics2D.RaycastAll(transform.position - new Vector3(box.size.x / 2, 0), new Vector2(-1, 0), _speed * Time.deltaTime * 3);
+        Debug.DrawRay(transform.position - new Vector3(box.size.x / 2, 0,0), new Vector2(1, 0) * _speed * Time.deltaTime);
         for (int i = 0; i < hitsLeft.Length; i++)
         {
-            if (hitsLeft[i].collider != null && hitsLeft[i].collider.tag == "Wall" && hitsLeft[i].distance < -_speed * Time.deltaTime)
+            if (hitsLeft[i].collider != null && hitsLeft[i].collider.tag == "Wall" && _canMovingLeft == true && hitsLeft[i].distance < -_speed * Time.deltaTime)
             {
-                if (_canMovingLeft)
-                {
-                    _speed = 0;
-                }
+                _position -= new Vector3(hitsLeft[i].distance, 0, 0);
+                _speed = 0;
 
-                _gigatest = false;
-                //_canMovingLeft = false;
+                _canMovingLeft = false;
+                colid = true;
                 break;
             }
-            //if (i == hitsLeft.Length-1) { _canMovingLeft = true; }
         }
-        _canMovingLeft = _gigatest;
+        if (!colid) { _canMovingLeft = true; }
+    }
+
+    private void CheckCollisionDown()
+    {
+        bool colid = false;
+        RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position - new Vector3(0, box.size.x / 2), new Vector2(0, -1), _gravity * Time.deltaTime * 3);
+        Debug.DrawRay(transform.position - new Vector3(0, box.size.x / 2), new Vector2(0, -1)* _gravity * Time.deltaTime);
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            if (hits[i].collider != null && hits[i].collider.tag == "Wall" && hits[i].distance < 0.5f*Time.deltaTime)
+            {
+                _gravity = 0;
+                _canMovingDown = false;
+                colid = true;
+                break;
+            }
+        }
+        if (!colid) { _gravity = 0.5f; }
     }
 }

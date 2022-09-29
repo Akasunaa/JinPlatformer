@@ -592,12 +592,16 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3228177310480514871, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
+      propertyPath: _gravity
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3228177310480514871, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
       propertyPath: _maxSpeed
       value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 3228177310480514871, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
       propertyPath: _acceleration
-      value: 1
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 3228177310480514871, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
       propertyPath: _deceleration
