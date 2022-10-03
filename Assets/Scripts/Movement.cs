@@ -169,7 +169,7 @@ public class Movement : MonoBehaviour
                 break;
             }
         }
-        if (!colid) { _gravity = _realGravity; }
+        if (!colid) { _gravity = _realGravity;}
     }
 
     public void Jump(InputAction.CallbackContext context)
