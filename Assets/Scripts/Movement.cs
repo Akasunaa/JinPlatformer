@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -27,9 +29,12 @@ public class Movement : MonoBehaviour
     private bool _isMovingLeft = false;
     private bool _canMovingLeft = true;
 
-    private bool _collisionDown;
+    private bool _canMovingDown=true;
 
-    private BoxCollider2D box;
+    private bool _canMovingUp = true;
+
+
+    private BoxCollider2D _box;
     #endregion
 
     #region Run variables 
@@ -100,14 +105,11 @@ public class Movement : MonoBehaviour
 
     private void Start()
     {
-        box=GetComponent<BoxCollider2D>();
+        _box=GetComponent<BoxCollider2D>();
     }
 
     void Update()
     {
-
-        //todo : lerp
-        //todo : rajouter des raycast
 
         CalculateHorizontalMove();
         CalculateGravity();
@@ -121,10 +123,8 @@ public class Movement : MonoBehaviour
 
         UpdatePlayerState();
 
- 
-
         UpdatePosition();
-
+        print(_canMovingUp);
     }
 
     private void InitializeValues()
@@ -194,32 +194,37 @@ public class Movement : MonoBehaviour
 
     private void CheckCollisionRight()
     {
-        bool collid=false;        
-        RaycastHit2D[] first = Physics2D.RaycastAll(transform.position + new Vector3(box.size.x / 2, -box.size.x / 4), new Vector2(1, 0), _horizontalSpeed * Time.deltaTime * 3);
-        RaycastHit2D[] second = Physics2D.RaycastAll(transform.position + new Vector3(box.size.x / 2, 0), new Vector2(1, 0), _horizontalSpeed * Time.deltaTime * 3);
-        RaycastHit2D[] third = Physics2D.RaycastAll(transform.position + new Vector3(box.size.x / 2, box.size.x / 4), new Vector2(1, 0), _horizontalSpeed * Time.deltaTime * 3);
+        bool colid=false;        
+        RaycastHit2D[] first = Physics2D.RaycastAll(transform.position + new Vector3(_box.size.x / 2, -_box.size.x*0.45f), new Vector2(1, 0), _horizontalSpeed * Time.deltaTime * 3);
+        RaycastHit2D[] second = Physics2D.RaycastAll(transform.position + new Vector3(_box.size.x / 2, 0), new Vector2(1, 0), _horizontalSpeed * Time.deltaTime * 3);
+        RaycastHit2D[] third = Physics2D.RaycastAll(transform.position + new Vector3(_box.size.x / 2, _box.size.x* 0.45f), new Vector2(1, 0), _horizontalSpeed * Time.deltaTime * 3);
         
-        RaycastHit2D[] hitsRight = third.Concat(first.Concat(second).ToArray()).ToArray();
-        for (int i = 0; i < hitsRight.Length; i++)
+        RaycastHit2D[] hits = third.Concat(first.Concat(second).ToArray()).ToArray();
+        for (int i = 0; i < hits.Length; i++)
         {
-            if (hitsRight[i].collider != null && hitsRight[i].collider.tag == "Wall" && _canMovingRight == true && hitsRight[i].distance< _horizontalSpeed * Time.deltaTime)
+            if (hits[i].collider != null && hits[i].collider.tag == "Wall" && _canMovingRight == true && hits[i].distance< _horizontalSpeed * Time.deltaTime)
             {
-                _position += new Vector3(hitsRight[i].distance, 0, 0);
+                _position += new Vector3(hits[i].distance, 0, 0);
                 _horizontalSpeed = 0;
                 _canMovingRight = false;
-                collid = true;
+                colid = true;
                 break;
             }
+            if (hits[i].collider != null && hits[i].collider.tag == "Wall" && hits[i].distance < 0.1f)
+            {
+                _canMovingRight = false;
+                colid = true;
+            }
         }
-        if(!collid){ _canMovingRight = true;}
+        if(!colid){ _canMovingRight = true;}
     }
 
     private void CheckCollisionLeft()
     {
         bool colid = false;
-        RaycastHit2D[] first = Physics2D.RaycastAll(transform.position - new Vector3(box.size.x / 2, -box.size.x / 4), new Vector2(-1, 0), -_horizontalSpeed * Time.deltaTime * 3);
-        RaycastHit2D[] second = Physics2D.RaycastAll(transform.position - new Vector3(box.size.x / 2, 0), new Vector2(-1, 0), -_horizontalSpeed * Time.deltaTime * 3);
-        RaycastHit2D[] third = Physics2D.RaycastAll(transform.position - new Vector3(box.size.x / 2, box.size.x / 4), new Vector2(-1, 0),- _horizontalSpeed * Time.deltaTime * 3);
+        RaycastHit2D[] first = Physics2D.RaycastAll(transform.position - new Vector3(_box.size.x / 2, -_box.size.x* 0.45f), new Vector2(-1, 0), -_horizontalSpeed * Time.deltaTime * 3);
+        RaycastHit2D[] second = Physics2D.RaycastAll(transform.position - new Vector3(_box.size.x / 2, 0), new Vector2(-1, 0), -_horizontalSpeed * Time.deltaTime * 3);
+        RaycastHit2D[] third = Physics2D.RaycastAll(transform.position - new Vector3(_box.size.x / 2, _box.size.x * 0.45f), new Vector2(-1, 0),- _horizontalSpeed * Time.deltaTime * 3);
         RaycastHit2D[] hitsLeft = third.Concat(first.Concat(second).ToArray()).ToArray();
 
         for (int i = 0; i < hitsLeft.Length; i++)
@@ -232,41 +237,87 @@ public class Movement : MonoBehaviour
                 colid = true;
                 break;
             }
+            if (hitsLeft[i].collider != null && hitsLeft[i].collider.tag == "Wall" && _canMovingLeft == true && hitsLeft[i].distance < 0.1f)
+            {
+                _canMovingLeft = false;
+                colid = true;
+            }
         }
         if (!colid) { _canMovingLeft = true; }
     }
 
     private void CheckCollisionUp()
     {
-        //to be coded
+        bool colid = false;
+        RaycastHit2D[] first = Physics2D.RaycastAll(transform.position + new Vector3(-_box.size.x * 0.45f, _box.size.x / 2), new Vector2(0, 1), _verticalSpeed * Time.deltaTime * 3 + 0.5f);
+        RaycastHit2D[] second = Physics2D.RaycastAll(transform.position + new Vector3(0, _box.size.x / 2), new Vector2(0, 1), math.abs(_verticalSpeed) * Time.deltaTime * 3 + 0.5f);
+        RaycastHit2D[] third = Physics2D.RaycastAll(transform.position + new Vector3(_box.size.x * 0.45f, _box.size.x / 2), new Vector2(0, 1), _verticalSpeed * Time.deltaTime * 3 + 0.5f);
+        RaycastHit2D[] hits = third.Concat(first.Concat(second).ToArray()).ToArray();
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            if (hits[i].collider != null && hits[i].collider.tag == "Wall" && hits[i].distance < _verticalSpeed * Time.deltaTime)
+            {
+
+                _position += new Vector3(0, hits[i].distance, 0);
+                _verticalSpeed = 0;
+                colid = true;
+                _canMovingUp = false;
+                break;
+            }
+            if (hits[i].collider != null && hits[i].collider.tag == "Wall" && hits[i].distance < 0.1f)
+            {
+                _canMovingUp = false;
+                colid = true;
+            }
+        }
+        if (!colid)
+        {
+            //_currentGravity = _standardGravity;
+            _canMovingUp = true;
+        }
     }
     private void CheckCollisionDown()
     {
         bool colid = false;
-        RaycastHit2D[] hits = Physics2D.RaycastAll(transform.position - new Vector3(0, box.size.x / 2), new Vector2(0, -1), _currentGravity * Time.deltaTime * 3);
-        Debug.DrawRay(transform.position - new Vector3(0, box.size.x / 2), new Vector2(0, -1)* _currentGravity * Time.deltaTime);
+        RaycastHit2D[] first = Physics2D.RaycastAll(transform.position - new Vector3(-_box.size.x * 0.45f, _box.size.x / 2), new Vector2(0, -1), -_verticalSpeed * Time.deltaTime * 3 + 0.5f);
+        RaycastHit2D[] second = Physics2D.RaycastAll(transform.position - new Vector3(0, _box.size.x / 2), new Vector2(0, -1), -_verticalSpeed * Time.deltaTime * 3 + 0.5f);
+        RaycastHit2D[] third = Physics2D.RaycastAll(transform.position - new Vector3(_box.size.x* 0.45f, _box.size.x / 2), new Vector2(0, -1), -_verticalSpeed * Time.deltaTime * 3+0.5f);
+        RaycastHit2D[] hits = third.Concat(first.Concat(second).ToArray()).ToArray();
 
         for (int i = 0; i < hits.Length; i++)
         {
-            if (hits[i].collider != null && hits[i].collider.tag == "Wall" && hits[i].distance < _standardGravity*Time.deltaTime)
+            if (hits[i].collider != null && hits[i].collider.tag == "Wall" && hits[i].distance < -_verticalSpeed * Time.deltaTime)
             {
-                _currentGravity = 0;
+                _verticalSpeed = 0;
                 colid = true;
-                _collisionDown = true;
+                _currentGravity = 0;
+                _canMovingDown = false;
+                _position -= new Vector3(0, hits[i].distance, 0);
+
                 break;
+            }
+            if (hits[i].collider != null && hits[i].collider.tag == "Wall" && hits[i].distance < 0.1f)
+            {
+
+                    _canMovingDown = false;
+
+                colid = true;
             }
         }
         if (!colid) {
             _currentGravity = _standardGravity;
-            _collisionDown = false;
+            _canMovingDown = true;
+            _canMovingUp = true;
         }
     }
+
 
     private void UpdatePlayerState()
     {
 
         //Case 1 : the player just quit the ground by jumping or falling
-        if(playerState == PlayerState.OnGround && !_collisionDown)
+        if(playerState == PlayerState.OnGround && _canMovingDown)
         {
             playerState = PlayerState.Falling;
             _lastStartFallingDate = Time.time;
@@ -279,7 +330,7 @@ public class Movement : MonoBehaviour
         }
 
         //Case 2 : the player just land on the ground
-        if(playerState == PlayerState.Falling && _collisionDown)
+        if(playerState == PlayerState.Falling && !_canMovingDown)
         {
             playerState = PlayerState.OnGround;
             _coyoteUsable = true;
@@ -325,7 +376,7 @@ public class Movement : MonoBehaviour
     private void CalculateGravity() {
         //todo retravailler la formule du cutoff
         //Case 1 : The player is hitting something under it. 
-        if (_collisionDown)
+        if (!_canMovingDown)
         {
             if(_verticalSpeed < 0) {
                 _verticalSpeed = 0;
