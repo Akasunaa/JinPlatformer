@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Wall
   - OneWay
+  - WallJump
   layers:
   - Default
   - TransparentFX
