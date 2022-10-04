@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3228177310480514873}
   - component: {fileID: 3228177310480514872}
   - component: {fileID: 3228177310480514871}
-  - component: {fileID: -8977058196425551435}
+  - component: {fileID: 2950146680841782897}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -181,9 +181,22 @@ MonoBehaviour:
   _deceleration: 8
   _maxSpeed: 10
   _turnSpeed: 1
-  _realGravity: 0.5
-  _jumpValue: 1
---- !u!61 &-8977058196425551435
+  _maxJumpHeight: 4
+  _jumpDuration: 5
+  _downwardGravityFactor: 4
+  _variableJumpHeight: 0
+  _jumpCutoff: 5
+  _maxSecondJumpHeight: 4
+  _secondJumpDuration: 5
+  _airAcceleration: 45
+  _airControl: 80
+  _airBrake: 40
+  _airApexBonusManiabilty: 1.5
+  _maxFallSpeed: 20
+  _apexProximityThreshold: 1
+  _coyoteTime: 0.1
+  _jumpBufferTime: 0.2
+--- !u!61 &2950146680841782897
 BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -193,7 +206,7 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}

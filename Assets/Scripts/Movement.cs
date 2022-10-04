@@ -124,12 +124,11 @@ public class Movement : MonoBehaviour
         UpdatePlayerState();
 
         UpdatePosition();
-        print(_canMovingUp);
     }
 
     private void InitializeValues()
     {
-        playerState = PlayerState.OnGround;
+        //playerState = PlayerState.OnGround;
 
         _standardGravity = (2f * _maxJumpHeight) / (_jumpDuration * _jumpDuration);
         _initialJumpImpulse = 2f * _maxJumpHeight / _jumpDuration;
@@ -202,7 +201,7 @@ public class Movement : MonoBehaviour
         RaycastHit2D[] hits = third.Concat(first.Concat(second).ToArray()).ToArray();
         for (int i = 0; i < hits.Length; i++)
         {
-            if (hits[i].collider != null && hits[i].collider.tag == "Wall" && _canMovingRight == true && hits[i].distance< _horizontalSpeed * Time.deltaTime)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall") && _canMovingRight == true && hits[i].distance< _horizontalSpeed * Time.deltaTime&&_horizontalSpeed > 0)
             {
                 _position += new Vector3(hits[i].distance, 0, 0);
                 _horizontalSpeed = 0;
@@ -210,7 +209,7 @@ public class Movement : MonoBehaviour
                 colid = true;
                 break;
             }
-            if (hits[i].collider != null && hits[i].collider.tag == "Wall" && hits[i].distance < 0.1f)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall") && hits[i].distance < 0.1f)
             {
                 _canMovingRight = false;
                 colid = true;
@@ -229,7 +228,7 @@ public class Movement : MonoBehaviour
 
         for (int i = 0; i < hitsLeft.Length; i++)
         {
-            if (hitsLeft[i].collider != null && hitsLeft[i].collider.tag == "Wall" && _canMovingLeft == true && hitsLeft[i].distance < -_horizontalSpeed * Time.deltaTime)
+            if (hitsLeft[i].collider != null && (hitsLeft[i].collider.tag == "Wall") && _canMovingLeft == true && hitsLeft[i].distance < -_horizontalSpeed * Time.deltaTime && _horizontalSpeed<0)
             {
                 _position -= new Vector3(hitsLeft[i].distance, 0, 0);
                 _horizontalSpeed = 0;
@@ -237,9 +236,10 @@ public class Movement : MonoBehaviour
                 colid = true;
                 break;
             }
-            if (hitsLeft[i].collider != null && hitsLeft[i].collider.tag == "Wall" && _canMovingLeft == true && hitsLeft[i].distance < 0.1f)
+            if (hitsLeft[i].collider != null && (hitsLeft[i].collider.tag == "Wall") && _canMovingLeft == true && hitsLeft[i].distance < 0.1f)
             {
                 _canMovingLeft = false;
+                print("pute");
                 colid = true;
             }
         }
@@ -256,10 +256,10 @@ public class Movement : MonoBehaviour
 
         for (int i = 0; i < hits.Length; i++)
         {
-            if (hits[i].collider != null && hits[i].collider.tag == "Wall" && hits[i].distance < _verticalSpeed * Time.deltaTime)
+            if (hits[i].collider != null && hits[i].collider.tag == "Wall" && hits[i].distance < _verticalSpeed * Time.deltaTime&&_verticalSpeed>0)
             {
-
                 _position += new Vector3(0, hits[i].distance, 0);
+                print("pute");
                 _verticalSpeed = 0;
                 colid = true;
                 _canMovingUp = false;
@@ -287,20 +287,20 @@ public class Movement : MonoBehaviour
 
         for (int i = 0; i < hits.Length; i++)
         {
-            if (hits[i].collider != null && hits[i].collider.tag == "Wall" && hits[i].distance < -_verticalSpeed * Time.deltaTime)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "OneWay" ) && hits[i].distance < -_verticalSpeed * Time.deltaTime && _verticalSpeed<0)
             {
                 _verticalSpeed = 0;
                 colid = true;
                 _currentGravity = 0;
                 _canMovingDown = false;
+                print("down");
                 _position -= new Vector3(0, hits[i].distance, 0);
-
                 break;
             }
-            if (hits[i].collider != null && hits[i].collider.tag == "Wall" && hits[i].distance < 0.1f)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall") && hits[i].distance < 0.1f)
             {
 
-                    _canMovingDown = false;
+               _canMovingDown = false;
 
                 colid = true;
             }
@@ -351,6 +351,10 @@ public class Movement : MonoBehaviour
         //todo : if in the air, apply apex bonus 
         if (_isMovingRight && _horizontalSpeed < _maxSpeed)
         {
+            if (_horizontalSpeed < 0 && playerState == PlayerState.OnGround)
+            {
+                _horizontalSpeed = _currentTurnSpeed;
+            }
             if (_canMovingRight)
             {
                 _horizontalSpeed += _currentAcceleration * Time.deltaTime;
@@ -358,6 +362,10 @@ public class Movement : MonoBehaviour
         }
         else if (_isMovingLeft && _horizontalSpeed > -_maxSpeed)
         {
+            if (_horizontalSpeed > 0 && playerState == PlayerState.OnGround)
+            {
+                _horizontalSpeed = -_currentTurnSpeed;
+            }
             if (_canMovingLeft)
             {
                 _horizontalSpeed -= _currentAcceleration * Time.deltaTime;
