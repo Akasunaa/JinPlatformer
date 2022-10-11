@@ -36,8 +36,10 @@ public class Movement : MonoBehaviour
 
     #region Wall Jump 
     [Header("Wall Jump")]
-    [SerializeField] private float  _horizontalSpeedWallJump = 25f;
-    [SerializeField] private float _wallGravity = 0.5f;
+    [SerializeField] private float  _horizontalSpeedWallJump;
+    [SerializeField] private float _wallGravity;
+    [SerializeField] private float _impusleJumpWall;
+    private float _lastWallContactDate;
     #endregion
 
     #region Collisions Variables
@@ -123,6 +125,7 @@ public class Movement : MonoBehaviour
     [Header("Assist Parameters")]
     [SerializeField] private float _coyoteTime = 0.1f;                          // authorized delay to press "Jump" Button when falling from a platform
     [SerializeField] private float _jumpBufferTime = 0.2f;                      // authorized delay to press "Jump" Button before landing
+    [SerializeField] private float _wallJumpBufferTime = 0.1f;
 
     private bool _coyoteUsable = false;
     private float _lastStartFallingDate;
@@ -159,8 +162,7 @@ public class Movement : MonoBehaviour
 
         UpdatePlayerState();
         print(playerState);
-        print(_onLeftWall);
-        print(_onRightWall);
+        print(_currentGravity);
     }
 
     void FixedUpdate()
@@ -294,9 +296,8 @@ public class Movement : MonoBehaviour
                 _horizontalSpeed = 0;
                 _canMovingRight = false;
                 if (playerState != PlayerState.OnGround) { _onRightWall = true; }
-
-                colid = true;
                 _verticalSpeed = 0;
+                colid = true;
                 break;
             }
             if (hits[i].collider != null && (hits[i].collider.tag == "WallJump") && hits[i].distance < 0.1f)
@@ -449,8 +450,8 @@ public class Movement : MonoBehaviour
 
             else if (_onLeftWall || _onRightWall)
             {
-                print("MIAOU");
                 playerState = PlayerState.OnWall;
+                OnWallJumpStateEnter();
 
             }
 
@@ -479,13 +480,18 @@ public class Movement : MonoBehaviour
 
         if (playerState == PlayerState.OnWall)
         {
+
             if (_canMovingDown && !(_onRightWall || _onLeftWall))
             {
                 playerState = PlayerState.Falling;
+                OnFallingStateEnter();
+                _lastWallContactDate = Time.time;
             }
             else if (!_canMovingDown)
             {
                 playerState = PlayerState.OnGround;
+                OnGroundStateEnter();
+
             }
         }
 
@@ -529,7 +535,7 @@ public class Movement : MonoBehaviour
 
     private void OnWallJumpStateEnter()
     {
-        _verticalSpeed = -_wallGravity;
+        _currentGravity = _wallGravity;
     }
 
     #endregion
@@ -663,7 +669,12 @@ public class Movement : MonoBehaviour
         }
         else if ( playerState == PlayerState.Falling)
         {
-            if(_coyoteUsable && (_lastStartFallingDate + _coyoteTime > Time.time) && _jumpButtonJustPressed)
+            if ((_lastWallContactDate + _wallJumpBufferTime)>Time.time && _jumpButtonJustPressed)
+            {
+                ApplyJumpWall();
+
+            }
+            else if(_coyoteUsable && (_lastStartFallingDate + _coyoteTime > Time.time) && _jumpButtonJustPressed)
             {
                 ApplyJump();
             }
@@ -677,7 +688,7 @@ public class Movement : MonoBehaviour
                 _jumpPrematurelyEnded = true;
             }
         }
-        if (playerState == PlayerState.OnWall && (_lastJumpPressedDate + _jumpBufferTime > Time.time))
+        if (playerState == PlayerState.OnWall && (_lastJumpPressedDate + _wallJumpBufferTime > Time.time))
         {
             ApplyJumpWall();
         }
@@ -708,7 +719,8 @@ public class Movement : MonoBehaviour
 
     private void ApplyJumpWall()
     {
-        _verticalSpeed = _initialJumpImpulse*1.2f;
+        _lastWallContactDate = float.MinValue;
+        _verticalSpeed = _impusleJumpWall;
         if (_onRightWall)
         {
             _horizontalSpeed = -_horizontalSpeedWallJump;

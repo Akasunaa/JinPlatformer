@@ -193,6 +193,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9422522bd4f30947aca157fe02b4545, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _horizontalSpeedWallJump: 10
+  _wallGravity: 0.5
   _acceleration: 35
   _deceleration: 53
   _maxSpeed: 13
@@ -214,6 +216,7 @@ MonoBehaviour:
   _dashCooldown: 0.5
   _coyoteTime: 0.2
   _jumpBufferTime: 0.1
+  _wallJumpBufferTime: 0.1
 --- !u!61 &1126468919137375160
 BoxCollider2D:
   m_ObjectHideFlags: 0
