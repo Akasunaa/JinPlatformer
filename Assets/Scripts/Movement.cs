@@ -22,6 +22,18 @@ public class Movement : MonoBehaviour
     private float _currentDeceleration;                                         //horizontol deceleration
     #endregion
 
+    #region Input callbacks logic Variables
+    private float _lastJumpPressedDate;
+    private float _lastJumpButtonRelease;
+    private float _lastDashButtonPressedDate;
+
+    private bool _jumpButtonJustPressed;
+    private bool _jumpButtonJustReleased;
+    private bool _dashButtonJustPressed;
+
+    private bool _isFacingRight;
+    #endregion
+
     #region Collisions Variables
     private bool _isMovingRight=false;
     private bool _canMovingRight = true;
@@ -48,10 +60,12 @@ public class Movement : MonoBehaviour
     #region Normal Jump Variables
     [Header("Classic Jump")]
     [SerializeField] private float _maxJumpHeight = 4f;                         // height of the classic jump (when hold)
-    [SerializeField] private float _jumpDuration = 5f;                          // duration of the classic jump (when hold)
+    [SerializeField] private float _jumpDuration = 5f;                          // duration to get to the apex of the classic jump (when hold)
     [SerializeField] private float _downwardGravityFactor = 4f;                 // gravity amplifier used when falling down
     [SerializeField] private bool _variableJumpHeight = false;                  // true : variable jump height / false : fixed jump height
-    [SerializeField] private float _jumpCutoff = 5f;                            // how fast the jump is interrupted whend releasing the button (apply only if the varaible jump height is activated)
+    [SerializeField, Range(0,10)] private float _jumpCutoff = 5f;               // how fast the jump is interrupted whend releasing the button (apply only if the varaible jump height is activated)
+    private bool _cutOffApplied = false;
+    private const float _maxJumpCutoff = 10f;
 
     /* Both gravity and initial impulse are computed from the desired 
      * jump height and duration (perfect parabola trajectory).
@@ -60,31 +74,42 @@ public class Movement : MonoBehaviour
     private float _standardGravity;                                             // gravity for the classical jump
     private float _initialJumpImpulse;                                          // initial impulse for the classical jump
     private bool _jumpPrematurelyEnded = true;                                  // true if the jump button has been released during the jump;
-    private float _lastJumpButtonRelease;
     #endregion
 
     #region Double Jump Variables
-    [Header("Double Jump")]
-    [SerializeField] private float _maxSecondJumpHeight = 4f;
-    [SerializeField] private float _secondJumpDuration = 5f;
+    [Header("Double Jump / Extra Jump ")]
+    [SerializeField] private float _maxExtraJumpHeight = 4f;                    // height for each additional jump in the air
+    [SerializeField] private float _extraJumpDuration = 5f;                     // duration of each additional jump in the air
+    [SerializeField] private int _nbExtraJumps = 1;                             // number of additionnal jump in the air 
 
-
-    private float _gravityOnSecondJump;                                         // gravity for the classical jump
-    private float _initialSecondJumpImpulse;                                    // initial impulse for the classical jump
+    private int _currentNbExtraJumps;
+    private bool _onExtraJumpAscension;                                         // true if the player is ascending as a result of an extra jump
+    private float _gravityOnExtraJump;                                          // gravity for each extra jump
+    private float _initialExtraJumpImpulse;                                     // initial impulse for each extra jump
     #endregion
 
     #region Aerial Movements Variables
     [Header("Aerial Movements")]
     [SerializeField] private float _airAcceleration = 45f;                      // the lateral acceleration of the player in the air.
     [SerializeField] private float _airControl = 80f;                           // the turn speed of the player in the air
-    [SerializeField] private float _airBrake = 40f;                             // the lateral deceleration of the player in the air
-    [SerializeField] private float _airApexBonusManiabilty = 1.5f;              // bonus maniabilty at the apex of the jump (enhance both airAcceleration and air Control).
-    [SerializeField] private float _maxFallSpeed = 20f;
-                                       
-    private float _apexProximityFactor = 0;                                         // factor depending of the proximty to the last jump apex. At the closest point of the apex, this factor is equal to one. This is used as interpolation parameter for the _airApexBonusManiability.
-    [SerializeField] private float _apexProximityThreshold = 1f;                                      // Beyond this threshold, the apexProximity Factor = 0;
+    [SerializeField] private float _airBrake = 40f;                             // the lateral deceleration of the player in the air             
+    [SerializeField] private float _maxFallSpeed = 20f;                         // we clamp the fallspeed in order to avoid too big falling velocity
+
 
     #endregion// the maximum vertical speed of the player when falling.
+
+    #region Dash Variables
+    [Header("Dash")]
+    [SerializeField] private float _dashDistance = 3f;
+    [SerializeField] private float _dashDuration = 0.2f;
+    [SerializeField] private float _dashCooldown = 0.5f;
+
+    private int _dashDirection;                                             // equals 1 when the player look at the right when dash button is pressed. -1 otherwhise.
+    private float _dashImpulse;
+    private float _dashCounterForce;
+    private float _lastDashStartDate;
+    private bool _isDashStopped;
+    #endregion
 
     #region Assists Variables 
     [Header("Assist Parameters")]
@@ -93,7 +118,6 @@ public class Movement : MonoBehaviour
 
     private bool _coyoteUsable = false;
     private float _lastStartFallingDate;
-    private float _lastJumpPressedDate;
     #endregion
 
     #endregion
@@ -101,6 +125,7 @@ public class Movement : MonoBehaviour
     private void Awake()
     {
         InitializeValues();
+        
     }
 
     private void Start()
@@ -108,20 +133,32 @@ public class Movement : MonoBehaviour
         _box=GetComponent<BoxCollider2D>();
     }
 
-    void Update()
+    private void Update()
     {
+        UpdateInputsLogic();
+
+        if(playerState == PlayerState.OnDash)
+        {
+            CalculateDashBrake();
+            CalcultateDash();
+        }
 
         CalculateHorizontalMove();
         CalculateGravity();
         CalculateJump();
 
+        //UpdateFacingDirection();
 
+        UpdatePlayerState();
+        print(playerState);
+    }
+
+    void FixedUpdate()
+    {
         CheckCollisionRight();
         CheckCollisionLeft();
         CheckCollisionDown();
         CheckCollisionUp();
-
-        UpdatePlayerState();
 
         UpdatePosition();
     }
@@ -133,15 +170,23 @@ public class Movement : MonoBehaviour
         _standardGravity = (2f * _maxJumpHeight) / (_jumpDuration * _jumpDuration);
         _initialJumpImpulse = 2f * _maxJumpHeight / _jumpDuration;
 
-        _gravityOnSecondJump = (2f * _maxSecondJumpHeight) / (_secondJumpDuration * _secondJumpDuration);
-        _initialSecondJumpImpulse = 2f * _maxSecondJumpHeight / _secondJumpDuration;
+        _gravityOnExtraJump = (2f * _maxExtraJumpHeight) / (_extraJumpDuration * _extraJumpDuration);
+        _initialExtraJumpImpulse = 2f * _maxExtraJumpHeight / _extraJumpDuration;
 
         _jumpPrematurelyEnded = true;
         _coyoteUsable = false;
 
         _lastJumpPressedDate = float.MinValue;
-        _lastStartFallingDate = float.MinValue;
+        _lastDashButtonPressedDate = float.MinValue;
         _lastJumpButtonRelease = float.MinValue;
+
+        _lastStartFallingDate = float.MinValue;
+        _lastDashStartDate = float.MinValue;
+
+        _dashCounterForce = (2f * _dashDistance) / (_dashDuration * _dashDuration);
+        _dashImpulse = 2f * _dashDistance / _dashDuration;
+        _isDashStopped = true;
+        _dashDirection = 1;
 
         _currentTurnSpeed = _turnSpeed;
         _currentGravity = _standardGravity;
@@ -156,6 +201,7 @@ public class Movement : MonoBehaviour
         if (context.performed)
         {
             _isMovingLeft = true;
+            _isFacingRight = false;
         }
         if (context.canceled)
         {
@@ -168,6 +214,7 @@ public class Movement : MonoBehaviour
         if (context.performed)
         {
             _isMovingRight = true;
+            _isFacingRight = true;
         }
         if (context.canceled)
         {
@@ -185,6 +232,23 @@ public class Movement : MonoBehaviour
         {
             _lastJumpButtonRelease = Time.time;
         }
+    }
+
+    public void Dash(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            _lastDashButtonPressedDate = Time.time;
+        }
+    }
+
+    public void UpdateInputsLogic()
+    {
+
+        _jumpButtonJustPressed = (_lastJumpPressedDate == Time.time);
+        _jumpButtonJustReleased = (_lastJumpButtonRelease == Time.time);
+        _dashButtonJustPressed = (_lastDashButtonPressedDate == Time.time);
+       
     }
 
     #endregion
@@ -306,40 +370,105 @@ public class Movement : MonoBehaviour
             }
         }
         if (!colid) {
-            _currentGravity = _standardGravity;
+            
             _canMovingDown = true;
             _canMovingUp = true;
         }
     }
+    #endregion
 
+    #region PLAYER STATE MACHINE
 
     private void UpdatePlayerState()
     {
 
-        //Case 1 : the player just quit the ground by jumping or falling
-        if(playerState == PlayerState.OnGround && _canMovingDown)
+     
+        if(playerState == PlayerState.OnGround)
         {
-            playerState = PlayerState.Falling;
-            _lastStartFallingDate = Time.time;
+            if (CheckLaunchDash())
+            {
+                playerState = PlayerState.OnDash;
+                OnDashStateEnter();
+            }
+            //Case 1-2 : the player just quit the ground by jumping or falling
+            else if (_canMovingDown)
+            {
+                playerState = PlayerState.Falling;
+                OnFallingStateEnter();
+            }
+        }
 
-            _currentAcceleration = _airAcceleration;
-            _currentDeceleration = _airBrake;
-            _currentTurnSpeed = _airControl;
+        if(playerState == PlayerState.Falling)
+        {
+            if (CheckLaunchDash())
+            {
+                playerState = PlayerState.OnDash;
+                OnDashStateEnter();
+            }
 
+            //todo ajouter transition Falling->OnWall
+
+            //Case 2-2 : the player just land on the ground
+            else if (!_canMovingDown)
+            {
+                playerState = PlayerState.OnGround;
+                OnGroundStateEnter();
+            };
 
         }
 
-        //Case 2 : the player just land on the ground
-        if(playerState == PlayerState.Falling && !_canMovingDown)
+        if(playerState == PlayerState.OnDash && _isDashStopped)
         {
-            playerState = PlayerState.OnGround;
-            _coyoteUsable = true;
-            _currentGravity = 0f;
-
-            _currentAcceleration = _acceleration;
-            _currentDeceleration = _deceleration;
-            _currentTurnSpeed = _turnSpeed;
+            if (_canMovingDown)
+            {
+                playerState = PlayerState.Falling;
+                OnFallingStateEnter();
+            }
+            else
+            {
+                playerState = PlayerState.OnGround;
+                OnGroundStateEnter();
+            }
         }
+
+        //todo Ajouter transition OnWall -> Falling
+        //todo Ajouter transition OnWall -> OnGround
+    }
+
+    private bool CheckLaunchDash()
+    {
+        return (_dashButtonJustPressed && (_lastDashStartDate + _dashCooldown < Time.time));
+    }
+
+    private void OnFallingStateEnter()
+    {
+        _lastStartFallingDate = Time.time;
+        _currentGravity = _standardGravity;
+
+        _currentAcceleration = _airAcceleration;
+        _currentDeceleration = _airBrake;
+        _currentTurnSpeed = _airControl;
+    }
+
+    private void OnGroundStateEnter()
+    {
+        _currentNbExtraJumps = _nbExtraJumps;
+        _coyoteUsable = true;
+        _currentGravity = 0f;
+
+        _currentAcceleration = _acceleration;
+        _currentDeceleration = _deceleration;
+        _currentTurnSpeed = _turnSpeed;
+    }
+
+    private void OnDashStateEnter()
+    {
+        _isDashStopped = false;
+        _lastDashStartDate = Time.time;
+        _dashDirection = _isFacingRight ? 1 : -1;
+        _currentGravity = 0;
+        _verticalSpeed = 0;
+        _horizontalSpeed = _dashImpulse * _dashDirection;
     }
 
     #endregion
@@ -348,7 +477,11 @@ public class Movement : MonoBehaviour
 
     private void CalculateHorizontalMove()
     {
-        //todo : if in the air, apply apex bonus 
+        if(playerState == PlayerState.OnDash)
+        {
+            return; //si on est en train de dasher, on ne prend pas en compte les inputs du joueurs. 
+        }
+
         if (_isMovingRight && _horizontalSpeed < _maxSpeed)
         {
             if (_horizontalSpeed < 0 && playerState == PlayerState.OnGround)
@@ -377,12 +510,50 @@ public class Movement : MonoBehaviour
         }
     }
 
+    /*private void UpdateFacingDirection()
+    {
+        if(_horizontalSpeed > 0)
+        {
+            _isFacingRight = true;
+        } else if (_horizontalSpeed < 0)
+        {
+            _isFacingRight = false;
+        }
+    }*/
+
+    private void CalculateDashBrake() // fucntion responsible of dash brutal deceleration.
+    {
+        //If we bump into a wall during the dash, we set horizontal velocity to zero.
+        if(_dashDirection * _horizontalSpeed > 0)
+        {
+            if( (_dashDirection > 0 && !_canMovingRight) || (_dashDirection < 0 && !_canMovingLeft))
+            {
+                _horizontalSpeed = 0f;
+                return;
+            }
+        }
+
+        _horizontalSpeed -= _dashCounterForce * _dashDirection * Time.deltaTime;
+        if (_dashDirection * _horizontalSpeed <= 0)
+        {
+            _horizontalSpeed = 0;
+        }
+    }
+
+    private void CalcultateDash()
+    {
+        //fin du dash = la vitesse horizontale est nulle ou de signe opposé à la direction du dash
+        if (_dashDirection * _horizontalSpeed <= 0)
+        {
+            _isDashStopped = true;
+        }
+    }
+
     #endregion
 
     #region VERTICAL MOVEMENT
 
     private void CalculateGravity() {
-        //todo retravailler la formule du cutoff
         //Case 1 : The player is hitting something under it. 
         if (!_canMovingDown)
         {
@@ -394,10 +565,22 @@ public class Movement : MonoBehaviour
 
         //Case 2 : the player is still falling or jumping
         var gravityamplifier = 1f;
-        if(_verticalSpeed < 0) { gravityamplifier = _downwardGravityFactor; }
-        else if (_verticalSpeed > 0 && _jumpPrematurelyEnded)
+        if(_verticalSpeed < 0) {
+
+            gravityamplifier = _downwardGravityFactor;
+
+            if (_onExtraJumpAscension)
+            {
+                _currentGravity = _standardGravity;
+                _onExtraJumpAscension = false;
+            }
+
+        }
+
+        else if (_verticalSpeed > 0 && _jumpPrematurelyEnded && !_cutOffApplied)
         {
-            _verticalSpeed /= _jumpCutoff;
+            _verticalSpeed *= (1f - _jumpCutoff/_maxJumpCutoff);
+            _cutOffApplied = true;
         }
 
         _verticalSpeed -= _currentGravity * gravityamplifier * Time.deltaTime;
@@ -410,25 +593,29 @@ public class Movement : MonoBehaviour
     }
     private void CalculateJump() {
 
-        //todo : Double Jump (not so difficult)
-
-        if(playerState == PlayerState.OnGround && (_lastJumpPressedDate + _jumpBufferTime > Time.time) )
+        if( playerState == PlayerState.OnGround)
         {
-            ApplyJump();
+            if(_lastJumpPressedDate + _jumpBufferTime > Time.time)
+            {
+                ApplyJump();
+            }
         }
-        else if (playerState == PlayerState.Falling && _coyoteUsable && (_lastStartFallingDate + _coyoteTime > Time.time) && _lastJumpPressedDate == Time.time)
+        else if ( playerState == PlayerState.Falling)
         {
-            ApplyJump();
-        }
+            if(_coyoteUsable && (_lastStartFallingDate + _coyoteTime > Time.time) && _jumpButtonJustPressed)
+            {
+                ApplyJump();
+            }
+            else if(_currentNbExtraJumps > 0 && _jumpButtonJustPressed){
+                _currentNbExtraJumps--;
+                ApplyExtraJump();
+            }
 
-        if (_variableJumpHeight)
-        {
-            if (playerState == PlayerState.Falling && !_jumpPrematurelyEnded && _verticalSpeed > 0 && _lastJumpButtonRelease == Time.time)
+            if(_variableJumpHeight && !_jumpPrematurelyEnded && _verticalSpeed > 0 && _jumpButtonJustReleased)
             {
                 _jumpPrematurelyEnded = true;
             }
-        }
-
+        } 
 
     }
 
@@ -436,9 +623,22 @@ public class Movement : MonoBehaviour
     {
         _verticalSpeed = _initialJumpImpulse;
         _jumpPrematurelyEnded = false;
+        _cutOffApplied = false;
         _coyoteUsable = false; // le coyote time n'est plus utilisable si on a d?j? saut? ! 
-        _lastStartFallingDate = float.MinValue; 
+        _lastStartFallingDate = float.MinValue;
+        _lastJumpPressedDate = float.MinValue;
 
+    }
+
+    private void ApplyExtraJump()
+    {
+        _verticalSpeed = _initialExtraJumpImpulse;
+        _jumpPrematurelyEnded = false;
+        _cutOffApplied = false;
+        _lastStartFallingDate = float.MinValue;
+        _lastJumpPressedDate = float.MinValue;
+        _onExtraJumpAscension = true;
+        _currentGravity = _gravityOnExtraJump; 
     }
     #endregion
 

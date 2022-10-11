@@ -3,4 +3,4 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public enum PlayerState {OnGround, Falling};
+public enum PlayerState {OnGround, Falling, OnDash};
