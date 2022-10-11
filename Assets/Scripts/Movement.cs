@@ -133,7 +133,6 @@ public class Movement : MonoBehaviour
 
     private void InitializeValues()
     {
-        //playerState = PlayerState.OnGround;
 
         _standardGravity = (2f * _maxJumpHeight) / (_jumpDuration * _jumpDuration);
         _initialJumpImpulse = 2f * _maxJumpHeight / _jumpDuration;
@@ -232,9 +231,7 @@ public class Movement : MonoBehaviour
             }
             if (hits[i].collider != null && (hits[i].collider.tag == "WallJump") && hits[i].distance < 0.1f)
             {
-                playerState = PlayerState.OnWall;
-                _verticalSpeed = -0.5f;
-                if (playerState != PlayerState.OnGround){ _onRightWall = true; }
+                if (playerState != PlayerState.OnGround){ _onRightWall = true; _verticalSpeed = -0.5f; }
                 _canMovingRight = false;
                 colid = true;
             }
@@ -279,9 +276,7 @@ public class Movement : MonoBehaviour
             }
             if (hits[i].collider != null && (hits[i].collider.tag == "WallJump") && hits[i].distance < 0.1f)
             {
-                playerState = PlayerState.OnWall;
-                _verticalSpeed = -0.5f;
-                if (playerState != PlayerState.OnGround) { _onLeftWall = true; }
+                if (playerState != PlayerState.OnGround) { _onLeftWall = true; _verticalSpeed = -0.5f;}
 
 
                 _canMovingLeft = false;
@@ -301,7 +296,7 @@ public class Movement : MonoBehaviour
 
         for (int i = 0; i < hits.Length; i++)
         {
-            if (hits[i].collider != null && hits[i].collider.tag == "Wall" && hits[i].distance < _verticalSpeed * Time.deltaTime&&_verticalSpeed>0)
+            if (hits[i].collider != null && hits[i].collider.tag == "Wall" && hits[i].distance < _verticalSpeed * Time.deltaTime&&_verticalSpeed>0 && _canMovingUp==true)
             {
                 _position += new Vector3(0, hits[i].distance, 0);
                 _verticalSpeed = 0;
@@ -359,7 +354,7 @@ public class Movement : MonoBehaviour
     {
 
         //Case 1 : the player just quit the ground by jumping or falling
-        if(playerState == PlayerState.OnGround && _canMovingDown)
+        if (_canMovingDown && !_onLeftWall && !_onRightWall)
         {
             playerState = PlayerState.Falling;
             _lastStartFallingDate = Time.time;
@@ -372,7 +367,7 @@ public class Movement : MonoBehaviour
         }
 
         //Case 2 : the player just land on the ground
-        if(playerState == PlayerState.Falling && !_canMovingDown)
+        if (!_canMovingDown)
         {
             playerState = PlayerState.OnGround;
             _coyoteUsable = true;
@@ -383,7 +378,12 @@ public class Movement : MonoBehaviour
             _currentTurnSpeed = _turnSpeed;
         }
 
-        if (playerState == PlayerState.Falling && (_onLeftWall || _onRightWall)) { playerState = PlayerState.OnWall; }
+        if (_onLeftWall || _onRightWall)
+        {
+            playerState = PlayerState.OnWall;
+
+        }
+
     }
 
     #endregion
@@ -491,19 +491,19 @@ public class Movement : MonoBehaviour
 
     private void ApplyJumpWall()
     {
-        _verticalSpeed = _initialJumpImpulse;
+        print("hoho");
+        _verticalSpeed = 1f;
         if (_onRightWall)
         {
-            _horizontalSpeed = -0.02f;
+            _horizontalSpeed = 1f;
             _onRightWall = false;
         }
         else
         {
-            _horizontalSpeed = 0.02f;
-            _onRightWall = false;
+            _horizontalSpeed = -1f;
+            _onLeftWall = false;
 
         }
-        playerState = PlayerState.Falling;
 
     }
     #endregion
