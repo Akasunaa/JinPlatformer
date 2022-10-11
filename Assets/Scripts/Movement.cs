@@ -22,6 +22,11 @@ public class Movement : MonoBehaviour
     private float _currentDeceleration;                                         //horizontol deceleration
     #endregion
 
+    #region Wall Jump  
+    private float  _horizontalSpeedWallJump = 25f;
+    private float _wallGravity = 0.5f;
+    #endregion
+
     #region Collisions Variables
     private bool _isMovingRight=false;
     private bool _canMovingRight = true;
@@ -231,7 +236,7 @@ public class Movement : MonoBehaviour
             }
             if (hits[i].collider != null && (hits[i].collider.tag == "WallJump") && hits[i].distance < 0.1f)
             {
-                if (playerState != PlayerState.OnGround){ _onRightWall = true; _verticalSpeed = -0.5f; }
+                if (playerState != PlayerState.OnGround){ _onRightWall = true; _verticalSpeed = -_wallGravity; }
                 _canMovingRight = false;
                 colid = true;
             }
@@ -276,7 +281,7 @@ public class Movement : MonoBehaviour
             }
             if (hits[i].collider != null && (hits[i].collider.tag == "WallJump") && hits[i].distance < 0.1f)
             {
-                if (playerState != PlayerState.OnGround) { _onLeftWall = true; _verticalSpeed = -0.5f;}
+                if (playerState != PlayerState.OnGround) { _onLeftWall = true; _verticalSpeed = -_wallGravity;}
 
 
                 _canMovingLeft = false;
@@ -491,16 +496,15 @@ public class Movement : MonoBehaviour
 
     private void ApplyJumpWall()
     {
-        print("hoho");
-        _verticalSpeed = 1f;
+        _verticalSpeed = _initialJumpImpulse*1.2f;
         if (_onRightWall)
         {
-            _horizontalSpeed = 1f;
+            _horizontalSpeed = -_horizontalSpeedWallJump;
             _onRightWall = false;
         }
         else
         {
-            _horizontalSpeed = -1f;
+            _horizontalSpeed = _horizontalSpeedWallJump;
             _onLeftWall = false;
 
         }
