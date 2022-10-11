@@ -345,6 +345,17 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &787336876 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3228177310480514871, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
+  m_PrefabInstance: {fileID: 3228177310997314670}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9422522bd4f30947aca157fe02b4545, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1068242630
 GameObject:
   m_ObjectHideFlags: 0
@@ -604,12 +615,16 @@ PrefabInstance:
       value: 13
       objectReference: {fileID: 0}
     - target: {fileID: 3228177310480514871, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
+      propertyPath: _turnSpeed
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3228177310480514871, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
       propertyPath: _coyoteTime
-      value: 0.4
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 3228177310480514871, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
       propertyPath: _jumpCutoff
-      value: 1.2
+      value: 5.93
       objectReference: {fileID: 0}
     - target: {fileID: 3228177310480514871, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
       propertyPath: _realGravity
@@ -617,7 +632,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3228177310480514871, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
       propertyPath: _acceleration
-      value: 30
+      value: 35
+      objectReference: {fileID: 0}
+    - target: {fileID: 3228177310480514871, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
+      propertyPath: _dashCooldown
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3228177310480514871, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
+      propertyPath: _dashDistance
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3228177310480514871, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
+      propertyPath: _dashDuration
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 3228177310480514871, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
       propertyPath: _deceleration
@@ -625,15 +652,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3228177310480514871, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
       propertyPath: _jumpDuration
-      value: 1
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 3228177310480514871, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
       propertyPath: _maxFallSpeed
-      value: 15
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 3228177310480514871, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
+      propertyPath: _nbExtraJumps
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3228177310480514871, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
       propertyPath: _maxJumpHeight
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3228177310480514871, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
       propertyPath: _jumpBufferTime
@@ -641,7 +672,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3228177310480514871, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
       propertyPath: _airAcceleration
-      value: 20
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 3228177310480514871, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
+      propertyPath: _extraJumpDuration
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 3228177310480514871, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
+      propertyPath: _maxExtraJumpHeight
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 3228177310480514871, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
       propertyPath: _variableJumpHeight
@@ -650,6 +689,46 @@ PrefabInstance:
     - target: {fileID: 3228177310480514871, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
       propertyPath: _downwardGravityFactor
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3228177310480514872, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
+      propertyPath: m_ActionEvents.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 3228177310480514872, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
+      propertyPath: m_ActionEvents.Array.data[3].m_ActionId
+      value: a983139c-7963-4204-aade-11119e4b6414
+      objectReference: {fileID: 0}
+    - target: {fileID: 3228177310480514872, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
+      propertyPath: m_ActionEvents.Array.data[3].m_ActionName
+      value: Player/Dash[/Keyboard/v]
+      objectReference: {fileID: 0}
+    - target: {fileID: 3228177310480514872, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
+      propertyPath: m_ActionEvents.Array.data[3].m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3228177310480514872, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
+      propertyPath: m_ActionEvents.Array.data[3].m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3228177310480514872, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
+      propertyPath: m_ActionEvents.Array.data[3].m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 787336876}
+    - target: {fileID: 3228177310480514872, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
+      propertyPath: m_ActionEvents.Array.data[3].m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3228177310480514872, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
+      propertyPath: m_ActionEvents.Array.data[3].m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: Dash
+      objectReference: {fileID: 0}
+    - target: {fileID: 3228177310480514872, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
+      propertyPath: m_ActionEvents.Array.data[3].m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: Movement, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 3228177310480514872, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
+      propertyPath: m_ActionEvents.Array.data[3].m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 3228177310480514875, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
       propertyPath: m_Name

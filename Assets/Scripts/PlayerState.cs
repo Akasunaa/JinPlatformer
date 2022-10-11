@@ -2,5 +2,4 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
-
-public enum PlayerState {OnGround, Falling, OnWall};
+public enum PlayerState {OnGround, Falling, OnWall, OnDash };
