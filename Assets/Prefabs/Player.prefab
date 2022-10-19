@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 164832358555483009}
   - component: {fileID: 4610168831816641572}
   - component: {fileID: 1126468919137375160}
+  - component: {fileID: 700911844601744102}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -195,6 +196,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _horizontalSpeedWallJump: 10
   _wallGravity: 0.5
+  _impusleJumpWall: 0
   _acceleration: 35
   _deceleration: 53
   _maxSpeed: 13
@@ -243,3 +245,21 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &700911844601744102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2754023917229825190}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4ee71d1218874df6a7dc14fb37ca506, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _jumpingAnimTime: 0.3
+  _horizontalShorten: 0.7
+  _verticalStretch: 1.3
+  _landingAnimTime: 0.15
+  _horizontalStrech: 1.2
+  _verticalShorten: 0.9

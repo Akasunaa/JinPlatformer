@@ -851,6 +851,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 6205753717138140841, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
+      propertyPath: m_DrawMode
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 2398530318011864634, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: abe8e17aa8943a74d8317223139d3b8f, type: 3}
