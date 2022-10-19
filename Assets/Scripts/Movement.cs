@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -131,6 +132,13 @@ public class Movement : MonoBehaviour
     private bool _coyoteUsable = false;
     private float _lastStartFallingDate;
     #endregion
+
+    #endregion
+
+    #region EVENT DECLARATION
+
+    public static event Action JumpingSignal;
+    public static event Action LandingSignal;
 
     #endregion
 
@@ -486,6 +494,7 @@ public class Movement : MonoBehaviour
             else if (!_canMovingDown)
             {
                 playerState = PlayerState.OnGround;
+                LandingSignal?.Invoke();
                 OnGroundStateEnter();
             };
 
@@ -734,6 +743,8 @@ public class Movement : MonoBehaviour
         _lastStartFallingDate = float.MinValue;
         _lastJumpPressedDate = float.MinValue;
 
+        JumpingSignal?.Invoke();
+
     }
 
     private void ApplyExtraJump()
@@ -744,7 +755,9 @@ public class Movement : MonoBehaviour
         _lastStartFallingDate = float.MinValue;
         _lastJumpPressedDate = float.MinValue;
         _onExtraJumpAscension = true;
-        _currentGravity = _gravityOnExtraJump; 
+        _currentGravity = _gravityOnExtraJump;
+
+        JumpingSignal?.Invoke();
     }
 
     private void ApplyJumpWall()

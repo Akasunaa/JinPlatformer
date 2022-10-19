@@ -12,6 +12,9 @@ EditorBuildSettings:
     path: Assets/Scenes/MainMenu.unity
     guid: 4e8d8c504afac4ebaa4cbba789e219b4
   - enabled: 1
+    path: Assets/Scenes/Alex.unity
+    guid: 7281b63a96b0849b4befaa1540c01c9a
+  - enabled: 1
     path: Assets/Scenes/Prom.unity
     guid: ac1fdfa000b54c54f95c09e8c8f52e68
   - enabled: 1

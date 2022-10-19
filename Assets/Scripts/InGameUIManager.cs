@@ -16,6 +16,7 @@ public class InGameUIManager : MonoBehaviour
         _controlsPanel.SetActive(false);
         _helpReminderPanel.SetActive(true);
     }
+
     public void ToggleHelp(InputAction.CallbackContext context)
     {
         if (context.performed)
