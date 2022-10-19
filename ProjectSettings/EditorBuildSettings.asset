@@ -14,4 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Prom.unity
     guid: ac1fdfa000b54c54f95c09e8c8f52e68
+  - enabled: 1
+    path: Assets/Scenes/End.unity
+    guid: 4efda61687299c54db9051daabec7fc5
   m_configObjects: {}

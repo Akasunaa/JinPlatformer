@@ -20,7 +20,6 @@ public class Movement : MonoBehaviour
     private float _currentGravity;
     private float _currentAcceleration;                                         //horizontal acceleration 
     private float _currentDeceleration;                                         //horizontol deceleration
-    private TrailRenderer _trailRenderer;
     #endregion
 
     #region Input callbacks logic Variables
@@ -39,7 +38,8 @@ public class Movement : MonoBehaviour
     [Header("Wall Jump")]
     [SerializeField] private float  _horizontalSpeedWallJump;
     [SerializeField] private float _wallGravity;
-    [SerializeField] private float _impusleJumpWall;
+    [SerializeField] private float _impulseJumpWall;
+    private string _lastWall;
     private float _lastWallContactDate;
     #endregion
 
@@ -143,7 +143,6 @@ public class Movement : MonoBehaviour
     private void Start()
     {
         _box=GetComponent<BoxCollider2D>();
-        _trailRenderer = GetComponent<TrailRenderer>();
     }
 
     private void Update()
@@ -163,9 +162,8 @@ public class Movement : MonoBehaviour
         //UpdateFacingDirection();
 
         UpdatePlayerState();
-        print(playerState);
-        print(_currentGravity);
 
+        print(playerState);
         //_trailRenderer.widthMultiplier = _horizontalSpeed;
     }
 
@@ -281,7 +279,7 @@ public class Movement : MonoBehaviour
         RaycastHit2D[] hits = third.Concat(first.Concat(second).ToArray()).ToArray();
         for (int i = 0; i < hits.Length; i++)
         {
-            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "OneWay") && _canMovingRight == true && hits[i].distance< _horizontalSpeed * Time.deltaTime&&_horizontalSpeed > 0)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "OneWay") && _canMovingRight && hits[i].distance< _horizontalSpeed * Time.deltaTime&&_horizontalSpeed > 0)
             {
                 _position += new Vector3(hits[i].distance, 0, 0);
                 _horizontalSpeed = 0;
@@ -294,25 +292,28 @@ public class Movement : MonoBehaviour
                 _canMovingRight = false;
                 colid = true;
             }
-            if (hits[i].collider != null && (hits[i].collider.tag == "WallJump") && _canMovingRight == true && hits[i].distance < _horizontalSpeed * Time.deltaTime && _horizontalSpeed > 0)
+            if (hits[i].collider != null && (hits[i].collider.tag == "WallJump") && _canMovingRight && hits[i].distance < _horizontalSpeed * Time.deltaTime)
             {
+                if(playerState != PlayerState.OnWall)
+                {
+                    _horizontalSpeed = 0;
+                    _verticalSpeed = 0;
+                }
                 _position += new Vector3(hits[i].distance, 0, 0);
-                _horizontalSpeed = 0;
                 _canMovingRight = false;
-                if (playerState != PlayerState.OnGround) { _onRightWall = true; }
-                _verticalSpeed = 0;
+                if (playerState != PlayerState.OnGround) { _onRightWall = true; _lastWall = "right"; }
                 colid = true;
                 break;
             }
-            if (hits[i].collider != null && (hits[i].collider.tag == "WallJump") && hits[i].distance < 0.1f)
-            {
-                if (playerState != PlayerState.OnGround){ _onRightWall = true; }
-                _canMovingRight = false;
-                colid = true;
-            }
+            //if (hits[i].collider != null && (hits[i].collider.tag == "WallJump") && hits[i].distance < 0.1f)
+            //{
+            //    if (playerState != PlayerState.OnGround) { _onRightWall = true; }
+            //    _canMovingRight = false;
+            //    colid = true;
+            //}
             if (hits[i].collider != null && hits[i].collider.tag == "End")
             {
-                print("win");
+                UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex + 1) ;
                 break;
             }
         }
@@ -329,7 +330,7 @@ public class Movement : MonoBehaviour
 
         for (int i = 0; i < hits.Length; i++)
         {
-            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "OneWay") && _canMovingLeft == true && hits[i].distance < -_horizontalSpeed * Time.deltaTime && _horizontalSpeed<0)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "OneWay") && _canMovingLeft && hits[i].distance < -_horizontalSpeed * Time.deltaTime && _horizontalSpeed<0)
             {
                 _position -= new Vector3(hits[i].distance, 0, 0);
                 _horizontalSpeed = 0;
@@ -337,32 +338,33 @@ public class Movement : MonoBehaviour
                 colid = true;
                 break;
             }
-            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "OneWay") && _canMovingLeft == true && hits[i].distance < 0.1f)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "OneWay") && _canMovingLeft && hits[i].distance < 0.1f)
             {
                 _canMovingLeft = false;
                 colid = true;
             }
-            if (hits[i].collider != null && (hits[i].collider.tag == "WallJump") && _canMovingLeft == true && hits[i].distance < -_horizontalSpeed * Time.deltaTime && _horizontalSpeed < 0)
+            if (hits[i].collider != null && (hits[i].collider.tag == "WallJump") && _canMovingLeft && hits[i].distance < -_horizontalSpeed * Time.deltaTime && _horizontalSpeed < 0)
             {
                 _position -= new Vector3(hits[i].distance, 0, 0);
                 _horizontalSpeed = 0;
                 _canMovingLeft = false;
-                if (playerState != PlayerState.OnGround) { _onLeftWall = true; }
+                if (playerState != PlayerState.OnGround) { _onLeftWall = true; _lastWall = "left"; }
 
 
                 colid = true;
                 _verticalSpeed = 0;
                 break;
             }
-            if (hits[i].collider != null && (hits[i].collider.tag == "WallJump") && hits[i].distance < 0.1f)
-            {
-                if (playerState != PlayerState.OnGround) { _onLeftWall = true;}
-                _canMovingLeft = false;
-                colid = true;
-            }
+            //if (hits[i].collider != null && (hits[i].collider.tag == "WallJump") && hits[i].distance < 0.1f)
+            //{
+            //    if (playerState != PlayerState.OnGround) { _onLeftWall = true; }
+            //    _canMovingLeft = false;
+            //    colid = true;
+            //}
             if (hits[i].collider != null && hits[i].collider.tag == "End")
             {
-                print("win");
+                UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex + 1);
+
                 break;
             }
         }
@@ -379,7 +381,7 @@ public class Movement : MonoBehaviour
 
         for (int i = 0; i < hits.Length; i++)
         {
-            if (hits[i].collider != null && hits[i].collider.tag == "Wall" && hits[i].distance < _verticalSpeed * Time.deltaTime&&_verticalSpeed>0 && _canMovingUp==true)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "WallJump" )&& hits[i].distance < _verticalSpeed * Time.deltaTime&&_verticalSpeed>0 && _canMovingUp==true)
             {
                 _position += new Vector3(0, hits[i].distance, 0);
                 _verticalSpeed = 0;
@@ -387,14 +389,15 @@ public class Movement : MonoBehaviour
                 _canMovingUp = false;
                 break;
             }
-            if (hits[i].collider != null && hits[i].collider.tag == "Wall" && hits[i].distance < 0.1f)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "WallJump") && hits[i].distance < 0.1f)
             {
                 _canMovingUp = false;
                 colid = true;
             }
             if (hits[i].collider != null && hits[i].collider.tag == "End")
             {
-                print("win");
+                UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex + 1);
+
                 break;
             }
         }
@@ -432,7 +435,8 @@ public class Movement : MonoBehaviour
             }
             if (hits[i].collider != null && hits[i].collider.tag == "End")
             {
-                print("win");
+                UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex + 1);
+
                 break;
             }
         }
@@ -653,13 +657,13 @@ public class Movement : MonoBehaviour
             if(_verticalSpeed < 0) {
                 _verticalSpeed = 0;
                 return;
-            } 
+            }
+   
         }
 
         //Case 2 : the player is still falling or jumping
         var gravityamplifier = 1f;
         if(_verticalSpeed < 0) {
-
             gravityamplifier = _downwardGravityFactor;
 
             if (_onExtraJumpAscension)
@@ -672,6 +676,7 @@ public class Movement : MonoBehaviour
 
         else if (_verticalSpeed > 0 && _jumpPrematurelyEnded && !_cutOffApplied)
         {
+            
             _verticalSpeed *= (1f - _jumpCutoff/_maxJumpCutoff);
             _cutOffApplied = true;
         }
@@ -746,8 +751,8 @@ public class Movement : MonoBehaviour
     private void ApplyJumpWall()
     {
         _lastWallContactDate = float.MinValue;
-        _verticalSpeed = _impusleJumpWall;
-        if (_onRightWall)
+        _verticalSpeed = _impulseJumpWall;
+        if (_lastWall == "right")
         {
             _horizontalSpeed = -_horizontalSpeedWallJump;
             _onRightWall = false;
@@ -756,9 +761,7 @@ public class Movement : MonoBehaviour
         {
             _horizontalSpeed = _horizontalSpeedWallJump;
             _onLeftWall = false;
-
         }
-
     }
     #endregion
 
