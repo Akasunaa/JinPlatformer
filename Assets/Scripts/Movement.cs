@@ -164,7 +164,8 @@ public class Movement : MonoBehaviour
         UpdatePlayerState();
 
         print(playerState);
-        //_trailRenderer.widthMultiplier = _horizontalSpeed;
+        print("can right " + _canMovingRight);
+
     }
 
     void FixedUpdate()
@@ -271,7 +272,7 @@ public class Movement : MonoBehaviour
 
     private void CheckCollisionRight()
     {
-        bool colid=false;        
+        bool colid=false;
         RaycastHit2D[] first = Physics2D.RaycastAll(transform.position + new Vector3(_box.size.x / 2, -_box.size.x*0.45f), new Vector2(1, 0), _horizontalSpeed * Time.deltaTime * 3);
         RaycastHit2D[] second = Physics2D.RaycastAll(transform.position + new Vector3(_box.size.x / 2, 0), new Vector2(1, 0), _horizontalSpeed * Time.deltaTime * 3);
         RaycastHit2D[] third = Physics2D.RaycastAll(transform.position + new Vector3(_box.size.x / 2, _box.size.x* 0.45f), new Vector2(1, 0), _horizontalSpeed * Time.deltaTime * 3);
@@ -291,26 +292,23 @@ public class Movement : MonoBehaviour
             {
                 _canMovingRight = false;
                 colid = true;
+                break;
             }
-            if (hits[i].collider != null && (hits[i].collider.tag == "WallJump") && _canMovingRight && hits[i].distance < _horizontalSpeed * Time.deltaTime)
+            if (hits[i].collider != null && (hits[i].collider.tag == "WallJump") && hits[i].distance < _horizontalSpeed * Time.deltaTime && _canMovingRight)
             {
-                if(playerState != PlayerState.OnWall)
-                {
-                    _horizontalSpeed = 0;
-                    _verticalSpeed = 0;
-                }
+                _horizontalSpeed = 0;
                 _position += new Vector3(hits[i].distance, 0, 0);
                 _canMovingRight = false;
                 if (playerState != PlayerState.OnGround) { _onRightWall = true; _lastWall = "right"; }
                 colid = true;
                 break;
             }
-            //if (hits[i].collider != null && (hits[i].collider.tag == "WallJump") && hits[i].distance < 0.1f)
-            //{
-            //    if (playerState != PlayerState.OnGround) { _onRightWall = true; }
-            //    _canMovingRight = false;
-            //    colid = true;
-            //}
+            if (hits[i].collider != null && hits[i].collider.tag == "WallJump" && hits[i].distance < 0.1f )
+            {
+                _canMovingRight = false;
+                colid = true;
+                break;
+            }
             if (hits[i].collider != null && hits[i].collider.tag == "End")
             {
                 UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex + 1) ;
@@ -342,25 +340,24 @@ public class Movement : MonoBehaviour
             {
                 _canMovingLeft = false;
                 colid = true;
-            }
-            if (hits[i].collider != null && (hits[i].collider.tag == "WallJump") && _canMovingLeft && hits[i].distance < -_horizontalSpeed * Time.deltaTime && _horizontalSpeed < 0)
-            {
-                _position -= new Vector3(hits[i].distance, 0, 0);
-                _horizontalSpeed = 0;
-                _canMovingLeft = false;
-                if (playerState != PlayerState.OnGround) { _onLeftWall = true; _lastWall = "left"; }
-
-
-                colid = true;
-                _verticalSpeed = 0;
                 break;
             }
-            //if (hits[i].collider != null && (hits[i].collider.tag == "WallJump") && hits[i].distance < 0.1f)
-            //{
-            //    if (playerState != PlayerState.OnGround) { _onLeftWall = true; }
-            //    _canMovingLeft = false;
-            //    colid = true;
-            //}
+            if (hits[i].collider != null && (hits[i].collider.tag == "WallJump") && hits[i].distance < -_horizontalSpeed * Time.deltaTime && _canMovingLeft)
+            {
+                _horizontalSpeed = 0;
+                _position -= new Vector3(hits[i].distance, 0, 0);
+                _canMovingLeft = false;
+                if (playerState != PlayerState.OnGround) { _onLeftWall = true; _lastWall = "left"; }
+                colid = true;
+                break;
+            }
+           
+            if (hits[i].collider != null && hits[i].collider.tag == "WallJump" && hits[i].distance < 0.1f)
+            {
+                _canMovingLeft = false;
+                colid = true;
+                break;
+            }
             if (hits[i].collider != null && hits[i].collider.tag == "End")
             {
                 UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex + 1);
@@ -566,6 +563,8 @@ public class Movement : MonoBehaviour
     private void OnWallJumpStateEnter()
     {
         _currentGravity = _wallGravity;
+        _horizontalSpeed = 0;
+        _verticalSpeed = 0;
     }
 
     #endregion
