@@ -20,6 +20,7 @@ public class Movement : MonoBehaviour
     private float _currentGravity;
     private float _currentAcceleration;                                         //horizontal acceleration 
     private float _currentDeceleration;                                         //horizontol deceleration
+    private TrailRenderer _trailRenderer;
     #endregion
 
     #region Input callbacks logic Variables
@@ -142,6 +143,7 @@ public class Movement : MonoBehaviour
     private void Start()
     {
         _box=GetComponent<BoxCollider2D>();
+        _trailRenderer = GetComponent<TrailRenderer>();
     }
 
     private void Update()
@@ -163,6 +165,8 @@ public class Movement : MonoBehaviour
         UpdatePlayerState();
         print(playerState);
         print(_currentGravity);
+
+        //_trailRenderer.widthMultiplier = _horizontalSpeed;
     }
 
     void FixedUpdate()
@@ -277,7 +281,7 @@ public class Movement : MonoBehaviour
         RaycastHit2D[] hits = third.Concat(first.Concat(second).ToArray()).ToArray();
         for (int i = 0; i < hits.Length; i++)
         {
-            if (hits[i].collider != null && (hits[i].collider.tag == "Wall") && _canMovingRight == true && hits[i].distance< _horizontalSpeed * Time.deltaTime&&_horizontalSpeed > 0)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "OneWay") && _canMovingRight == true && hits[i].distance< _horizontalSpeed * Time.deltaTime&&_horizontalSpeed > 0)
             {
                 _position += new Vector3(hits[i].distance, 0, 0);
                 _horizontalSpeed = 0;
@@ -285,7 +289,7 @@ public class Movement : MonoBehaviour
                 colid = true;
                 break;
             }
-            if (hits[i].collider != null && (hits[i].collider.tag == "Wall") && hits[i].distance < 0.1f)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "OneWay" ) && hits[i].distance < 0.1f)
             {
                 _canMovingRight = false;
                 colid = true;
@@ -306,6 +310,11 @@ public class Movement : MonoBehaviour
                 _canMovingRight = false;
                 colid = true;
             }
+            if (hits[i].collider != null && hits[i].collider.tag == "End")
+            {
+                print("win");
+                break;
+            }
         }
         if(!colid){ _canMovingRight = true; _onRightWall = false; }
     }
@@ -320,7 +329,7 @@ public class Movement : MonoBehaviour
 
         for (int i = 0; i < hits.Length; i++)
         {
-            if (hits[i].collider != null && (hits[i].collider.tag == "Wall") && _canMovingLeft == true && hits[i].distance < -_horizontalSpeed * Time.deltaTime && _horizontalSpeed<0)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "OneWay") && _canMovingLeft == true && hits[i].distance < -_horizontalSpeed * Time.deltaTime && _horizontalSpeed<0)
             {
                 _position -= new Vector3(hits[i].distance, 0, 0);
                 _horizontalSpeed = 0;
@@ -328,7 +337,7 @@ public class Movement : MonoBehaviour
                 colid = true;
                 break;
             }
-            if (hits[i].collider != null && (hits[i].collider.tag == "Wall") && _canMovingLeft == true && hits[i].distance < 0.1f)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "OneWay") && _canMovingLeft == true && hits[i].distance < 0.1f)
             {
                 _canMovingLeft = false;
                 colid = true;
@@ -350,6 +359,11 @@ public class Movement : MonoBehaviour
                 if (playerState != PlayerState.OnGround) { _onLeftWall = true;}
                 _canMovingLeft = false;
                 colid = true;
+            }
+            if (hits[i].collider != null && hits[i].collider.tag == "End")
+            {
+                print("win");
+                break;
             }
         }
         if (!colid) { _canMovingLeft = true; _onLeftWall = false; }
@@ -378,11 +392,17 @@ public class Movement : MonoBehaviour
                 _canMovingUp = false;
                 colid = true;
             }
+            if (hits[i].collider != null && hits[i].collider.tag == "End")
+            {
+                print("win");
+                break;
+            }
         }
         if (!colid)
         {
             _canMovingUp = true;
         }
+
     }
     private void CheckCollisionDown()
     {
@@ -410,7 +430,13 @@ public class Movement : MonoBehaviour
 
                 colid = true;
             }
+            if (hits[i].collider != null && hits[i].collider.tag == "End")
+            {
+                print("win");
+                break;
+            }
         }
+
         if (!colid) {
             
             _canMovingDown = true;
