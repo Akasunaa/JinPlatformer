@@ -37,9 +37,9 @@ public class Movement : MonoBehaviour
 
     #region Wall Jump 
     [Header("Wall Jump")]
-    [SerializeField] private float  _horizontalSpeedWallJump;
-    [SerializeField] private float _wallGravity;
-    [SerializeField] private float _impulseJumpWall;
+    [SerializeField, Range(5,30)] private float  _horizontalSpeedWallJump;
+    [SerializeField, Range(5,20)] private float _wallGravity;
+    [SerializeField, Range(5,30)] private float _impulseJumpWall;
     private string _lastWall;
     private float _lastWallContactDate;
     #endregion
@@ -63,17 +63,17 @@ public class Movement : MonoBehaviour
 
     #region Run variables 
     [Header("Run")]
-    [SerializeField] private int _acceleration;                                 //current horizontal acceleration
-    [SerializeField] private int _deceleration;                                 //current horizontal deceleration
-    [SerializeField] private int _maxSpeed; 
-    [SerializeField] private int _turnSpeed;
+    [SerializeField, Range(10, 80)] private int _acceleration;                 //current horizontal acceleration
+    [SerializeField, Range(10, 80)] private int _deceleration;                 //current horizontal deceleration
+    [SerializeField, Range(5, 50)] private int _maxSpeed; 
+    [SerializeField, Range(0, 20)] private int _turnSpeed;
     #endregion
 
     #region Normal Jump Variables
     [Header("Classic Jump")]
-    [SerializeField] private float _maxJumpHeight = 4f;                         // height of the classic jump (when hold)
-    [SerializeField] private float _jumpDuration = 5f;                          // duration to get to the apex of the classic jump (when hold)
-    [SerializeField] private float _downwardGravityFactor = 4f;                 // gravity amplifier used when falling down
+    [SerializeField, Range(1, 15)] private float _maxJumpHeight = 4f;                         // height of the classic jump (when hold)
+    [SerializeField, Range(0.05f, 2f)] private float _jumpDuration = 5f;                          // duration to get to the apex of the classic jump (when hold)
+    [SerializeField, Range (1,10)] private float _downwardGravityFactor = 4f;                 // gravity amplifier used when falling down
     [SerializeField] private bool _variableJumpHeight = false;                  // true : variable jump height / false : fixed jump height
     [SerializeField, Range(0,10)] private float _jumpCutoff = 5f;               // how fast the jump is interrupted whend releasing the button (apply only if the varaible jump height is activated)
     private bool _cutOffApplied = false;
@@ -90,9 +90,9 @@ public class Movement : MonoBehaviour
 
     #region Double Jump Variables
     [Header("Double Jump / Extra Jump ")]
-    [SerializeField] private float _maxExtraJumpHeight = 4f;                    // height for each additional jump in the air
-    [SerializeField] private float _extraJumpDuration = 5f;                     // duration of each additional jump in the air
-    [SerializeField] private int _nbExtraJumps = 1;                             // number of additionnal jump in the air 
+    [SerializeField, Range(1,15)] private float _maxExtraJumpHeight = 4f;                    // height for each additional jump in the air
+    [SerializeField, Range(0.05f, 2f)] private float _extraJumpDuration = 5f;                     // duration of each additional jump in the air
+    [SerializeField, Min(0)] private int _nbExtraJumps = 1;                             // number of additionnal jump in the air 
 
     private int _currentNbExtraJumps;
     private bool _onExtraJumpAscension;                                         // true if the player is ascending as a result of an extra jump
@@ -102,19 +102,19 @@ public class Movement : MonoBehaviour
 
     #region Aerial Movements Variables
     [Header("Aerial Movements")]
-    [SerializeField] private float _airAcceleration = 45f;                      // the lateral acceleration of the player in the air.
-    [SerializeField] private float _airControl = 80f;                           // the turn speed of the player in the air
-    [SerializeField] private float _airBrake = 40f;                             // the lateral deceleration of the player in the air             
-    [SerializeField] private float _maxFallSpeed = 20f;                         // we clamp the fallspeed in order to avoid too big falling velocity
+    [SerializeField, Range(10,80)] private float _airAcceleration = 45f;                      // the lateral acceleration of the player in the air.
+    [SerializeField, Range(0,20)] private float _airControl = 80f;                           // the turn speed of the player in the air
+    [SerializeField, Range(10,80)] private float _airBrake = 40f;                             // the lateral deceleration of the player in the air             
+    [SerializeField, Range(30, 150)] private float _maxFallSpeed = 20f;                         // we clamp the fallspeed in order to avoid too big falling velocity
 
 
     #endregion// the maximum vertical speed of the player when falling.
 
     #region Dash Variables
     [Header("Dash")]
-    [SerializeField] private float _dashDistance = 3f;
-    [SerializeField] private float _dashDuration = 0.2f;
-    [SerializeField] private float _dashCooldown = 0.5f;
+    [SerializeField, Range(1, 15)] private float _dashDistance = 3f;
+    [SerializeField, Range(0.05f, 2f)] private float _dashDuration = 0.2f;
+    [SerializeField, Range(0.05f, 2f)] private float _dashCooldown = 0.5f;
 
     private int _dashDirection;                                             // equals 1 when the player look at the right when dash button is pressed. -1 otherwhise.
     private float _dashImpulse;
@@ -125,9 +125,9 @@ public class Movement : MonoBehaviour
 
     #region Assists Variables 
     [Header("Assist Parameters")]
-    [SerializeField] private float _coyoteTime = 0.1f;                          // authorized delay to press "Jump" Button when falling from a platform
-    [SerializeField] private float _jumpBufferTime = 0.2f;                      // authorized delay to press "Jump" Button before landing
-    [SerializeField] private float _wallJumpBufferTime = 0.1f;
+    [SerializeField, Range(0, 1)] private float _coyoteTime = 0.1f;                          // authorized delay to press "Jump" Button when falling from a platform
+    [SerializeField, Range(0, 1)] private float _jumpBufferTime = 0.2f;                      // authorized delay to press "Jump" Button before landing
+    [SerializeField, Range(0, 0.5f)] private float _wallJumpBufferTime = 0.1f;
 
     private bool _coyoteUsable = false;
     private float _lastStartFallingDate;
@@ -215,6 +215,8 @@ public class Movement : MonoBehaviour
         _currentGravity = _standardGravity;
         _currentAcceleration = _acceleration;
         _currentDeceleration = _deceleration;
+
+        _position = transform.position;
     }
 
     #region INPUT CALLBACKS
