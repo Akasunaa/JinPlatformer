@@ -8,6 +8,7 @@ TagManager:
   - OneWay
   - WallJump
   - End
+  - Change
   layers:
   - Default
   - TransparentFX

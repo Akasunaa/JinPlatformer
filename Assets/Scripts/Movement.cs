@@ -325,10 +325,9 @@ public class Movement : MonoBehaviour
                 colid = true;
                 break;
             }
-            if (hits[i].collider != null && hits[i].collider.tag == "End")
+            if (hits[i].collider != null && (hits[i].collider.tag == "End" || hits[i].collider.tag == "Change"))
             {
-                UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex + 1) ;
-                break;
+                ChangeLevel(hits[i].collider.tag);
             }
         }
         if(!colid){ _canMovingRight = true; _onRightWall = false; }
@@ -374,12 +373,11 @@ public class Movement : MonoBehaviour
                 colid = true;
                 break;
             }
-            if (hits[i].collider != null && hits[i].collider.tag == "End")
+            if (hits[i].collider != null && (hits[i].collider.tag == "End" || hits[i].collider.tag == "Change"))
             {
-                UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex + 1);
-
-                break;
+                ChangeLevel(hits[i].collider.tag);
             }
+
         }
         if (!colid) { _canMovingLeft = true; _onLeftWall = false; }
     }
@@ -407,11 +405,9 @@ public class Movement : MonoBehaviour
                 _canMovingUp = false;
                 colid = true;
             }
-            if (hits[i].collider != null && hits[i].collider.tag == "End")
+            if (hits[i].collider != null && (hits[i].collider.tag == "End" || hits[i].collider.tag == "Change"))
             {
-                UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex + 1);
-
-                break;
+                ChangeLevel(hits[i].collider.tag);
             }
         }
         if (!colid)
@@ -448,11 +444,9 @@ public class Movement : MonoBehaviour
 
                 colid = true;
             }
-            if (hits[i].collider != null && hits[i].collider.tag == "End")
+            if (hits[i].collider != null && (hits[i].collider.tag == "End" || hits[i].collider.tag == "Change"))
             {
-                UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex + 1);
-
-                break;
+                ChangeLevel(hits[i].collider.tag);
             }
         }
 
@@ -803,6 +797,25 @@ public class Movement : MonoBehaviour
         transform.position = _position;
     }
 
+    private void ChangeLevel(string tag)
+    {
+        if (tag == "End")
+        {
+            UnityEngine.SceneManagement.SceneManager.LoadScene(3);
+        }
+        else
+        {
+            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex == 1)
+            {
+                UnityEngine.SceneManagement.SceneManager.LoadScene(2);
 
+            }
+            else
+            {
+                UnityEngine.SceneManagement.SceneManager.LoadScene(1);
+            }
+        }
+
+    }
 
 }
