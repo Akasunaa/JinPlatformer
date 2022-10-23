@@ -9,6 +9,7 @@ TagManager:
   - WallJump
   - End
   - Change
+  - Boing
   layers:
   - Default
   - TransparentFX

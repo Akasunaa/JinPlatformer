@@ -296,7 +296,7 @@ public class Movement : MonoBehaviour
         RaycastHit2D[] hits = third.Concat(first.Concat(second).ToArray()).ToArray();
         for (int i = 0; i < hits.Length; i++)
         {
-            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "OneWay") && _canMovingRight && hits[i].distance< _horizontalSpeed * Time.deltaTime&&_horizontalSpeed > 0)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "Boing" || hits[i].collider.tag == "OneWay") && _canMovingRight && hits[i].distance< _horizontalSpeed * Time.deltaTime&&_horizontalSpeed > 0)
             {
                 _position += new Vector3(hits[i].distance, 0, 0);
                 _horizontalSpeed = 0;
@@ -304,7 +304,7 @@ public class Movement : MonoBehaviour
                 colid = true;
                 break;
             }
-            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "OneWay" ) && hits[i].distance < 0.1f)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "Boing" || hits[i].collider.tag == "OneWay" ) && hits[i].distance < 0.1f)
             {
                 _canMovingRight = false;
                 colid = true;
@@ -343,7 +343,7 @@ public class Movement : MonoBehaviour
 
         for (int i = 0; i < hits.Length; i++)
         {
-            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "OneWay") && _canMovingLeft && hits[i].distance < -_horizontalSpeed * Time.deltaTime && _horizontalSpeed<0)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "Boing" || hits[i].collider.tag == "OneWay") && _canMovingLeft && hits[i].distance < -_horizontalSpeed * Time.deltaTime && _horizontalSpeed<0)
             {
                 _position -= new Vector3(hits[i].distance, 0, 0);
                 _horizontalSpeed = 0;
@@ -351,7 +351,7 @@ public class Movement : MonoBehaviour
                 colid = true;
                 break;
             }
-            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "OneWay") && _canMovingLeft && hits[i].distance < 0.1f)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "Boing" || hits[i].collider.tag == "OneWay") && _canMovingLeft && hits[i].distance < 0.1f)
             {
                 _canMovingLeft = false;
                 colid = true;
@@ -392,7 +392,7 @@ public class Movement : MonoBehaviour
 
         for (int i = 0; i < hits.Length; i++)
         {
-            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "WallJump" )&& hits[i].distance < _verticalSpeed * Time.deltaTime&&_verticalSpeed>0 && _canMovingUp==true)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "WallJump" || hits[i].collider.tag == "Boing") && hits[i].distance < _verticalSpeed * Time.deltaTime&&_verticalSpeed>0 && _canMovingUp==true)
             {
                 _position += new Vector3(0, hits[i].distance, 0);
                 _verticalSpeed = 0;
@@ -400,7 +400,7 @@ public class Movement : MonoBehaviour
                 _canMovingUp = false;
                 break;
             }
-            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "WallJump") && hits[i].distance < 0.1f)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "WallJump" || hits[i].collider.tag == "Boing") && hits[i].distance < 0.1f)
             {
                 _canMovingUp = false;
                 colid = true;
@@ -426,7 +426,7 @@ public class Movement : MonoBehaviour
 
         for (int i = 0; i < hits.Length; i++)
         {
-            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "OneWay" ) && hits[i].distance < -_verticalSpeed * Time.deltaTime && _verticalSpeed<0 && _canMovingDown==true)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "OneWay" || hits[i].collider.tag == "Boing") && hits[i].distance < -_verticalSpeed * Time.deltaTime && _verticalSpeed<0 && _canMovingDown==true)
             {
                 _fallSpeed = -_verticalSpeed;
 
@@ -435,9 +435,10 @@ public class Movement : MonoBehaviour
                 _currentGravity = 0;
                 _canMovingDown = false;
                 _position -= new Vector3(0, hits[i].distance, 0);
+                if(hits[i].collider.tag == "Boing") {_verticalSpeed = _fallSpeed/2; }
                 break;
             }
-            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "OneWay") && hits[i].distance < 0.1f)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "OneWay" || hits[i].collider.tag == "Boing") && hits[i].distance < 0.1f)
             {
 
                _canMovingDown = false;
