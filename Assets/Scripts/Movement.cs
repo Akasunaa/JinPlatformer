@@ -139,6 +139,15 @@ public class Movement : MonoBehaviour
 
     public static event Action JumpingSignal;
     public static event Action LandingSignal;
+    public static event Action<float> DashSignal;
+    public static event Action<float> LandingSignalWithValue;
+    float _fallSpeed = 0;
+
+    #endregion
+
+    #region PARTICULE DECLARATION
+
+    [SerializeField] private ParticleSystem dustParticle;
 
     #endregion
 
@@ -167,12 +176,9 @@ public class Movement : MonoBehaviour
         CalculateGravity();
         CalculateJump();
 
-        //UpdateFacingDirection();
-
         UpdatePlayerState();
 
         print(playerState);
-        print("can right " + _canMovingRight);
 
     }
 
@@ -290,7 +296,7 @@ public class Movement : MonoBehaviour
         RaycastHit2D[] hits = third.Concat(first.Concat(second).ToArray()).ToArray();
         for (int i = 0; i < hits.Length; i++)
         {
-            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "OneWay") && _canMovingRight && hits[i].distance< _horizontalSpeed * Time.deltaTime&&_horizontalSpeed > 0)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "Boing" || hits[i].collider.tag == "OneWay") && _canMovingRight && hits[i].distance< _horizontalSpeed * Time.deltaTime&&_horizontalSpeed > 0)
             {
                 _position += new Vector3(hits[i].distance, 0, 0);
                 _horizontalSpeed = 0;
@@ -298,7 +304,7 @@ public class Movement : MonoBehaviour
                 colid = true;
                 break;
             }
-            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "OneWay" ) && hits[i].distance < 0.1f)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "Boing" || hits[i].collider.tag == "OneWay" ) && hits[i].distance < 0.1f)
             {
                 _canMovingRight = false;
                 colid = true;
@@ -319,10 +325,9 @@ public class Movement : MonoBehaviour
                 colid = true;
                 break;
             }
-            if (hits[i].collider != null && hits[i].collider.tag == "End")
+            if (hits[i].collider != null && (hits[i].collider.tag == "End" || hits[i].collider.tag == "Change"))
             {
-                UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex + 1) ;
-                break;
+                ChangeLevel(hits[i].collider.tag);
             }
         }
         if(!colid){ _canMovingRight = true; _onRightWall = false; }
@@ -338,7 +343,7 @@ public class Movement : MonoBehaviour
 
         for (int i = 0; i < hits.Length; i++)
         {
-            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "OneWay") && _canMovingLeft && hits[i].distance < -_horizontalSpeed * Time.deltaTime && _horizontalSpeed<0)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "Boing" || hits[i].collider.tag == "OneWay") && _canMovingLeft && hits[i].distance < -_horizontalSpeed * Time.deltaTime && _horizontalSpeed<0)
             {
                 _position -= new Vector3(hits[i].distance, 0, 0);
                 _horizontalSpeed = 0;
@@ -346,7 +351,7 @@ public class Movement : MonoBehaviour
                 colid = true;
                 break;
             }
-            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "OneWay") && _canMovingLeft && hits[i].distance < 0.1f)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "Boing" || hits[i].collider.tag == "OneWay") && _canMovingLeft && hits[i].distance < 0.1f)
             {
                 _canMovingLeft = false;
                 colid = true;
@@ -368,12 +373,11 @@ public class Movement : MonoBehaviour
                 colid = true;
                 break;
             }
-            if (hits[i].collider != null && hits[i].collider.tag == "End")
+            if (hits[i].collider != null && (hits[i].collider.tag == "End" || hits[i].collider.tag == "Change"))
             {
-                UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex + 1);
-
-                break;
+                ChangeLevel(hits[i].collider.tag);
             }
+
         }
         if (!colid) { _canMovingLeft = true; _onLeftWall = false; }
     }
@@ -388,7 +392,7 @@ public class Movement : MonoBehaviour
 
         for (int i = 0; i < hits.Length; i++)
         {
-            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "WallJump" )&& hits[i].distance < _verticalSpeed * Time.deltaTime&&_verticalSpeed>0 && _canMovingUp==true)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "WallJump" || hits[i].collider.tag == "Boing") && hits[i].distance < _verticalSpeed * Time.deltaTime&&_verticalSpeed>0 && _canMovingUp==true)
             {
                 _position += new Vector3(0, hits[i].distance, 0);
                 _verticalSpeed = 0;
@@ -396,16 +400,14 @@ public class Movement : MonoBehaviour
                 _canMovingUp = false;
                 break;
             }
-            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "WallJump") && hits[i].distance < 0.1f)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "WallJump" || hits[i].collider.tag == "Boing") && hits[i].distance < 0.1f)
             {
                 _canMovingUp = false;
                 colid = true;
             }
-            if (hits[i].collider != null && hits[i].collider.tag == "End")
+            if (hits[i].collider != null && (hits[i].collider.tag == "End" || hits[i].collider.tag == "Change"))
             {
-                UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex + 1);
-
-                break;
+                ChangeLevel(hits[i].collider.tag);
             }
         }
         if (!colid)
@@ -424,27 +426,28 @@ public class Movement : MonoBehaviour
 
         for (int i = 0; i < hits.Length; i++)
         {
-            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "OneWay" ) && hits[i].distance < -_verticalSpeed * Time.deltaTime && _verticalSpeed<0 && _canMovingDown==true)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "OneWay" || hits[i].collider.tag == "Boing") && hits[i].distance < -_verticalSpeed * Time.deltaTime && _verticalSpeed<0 && _canMovingDown==true)
             {
+                _fallSpeed = -_verticalSpeed;
+
                 _verticalSpeed = 0;
                 colid = true;
                 _currentGravity = 0;
                 _canMovingDown = false;
                 _position -= new Vector3(0, hits[i].distance, 0);
+                if(hits[i].collider.tag == "Boing") {_verticalSpeed = _fallSpeed/2; }
                 break;
             }
-            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "OneWay") && hits[i].distance < 0.1f)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "OneWay" || hits[i].collider.tag == "Boing") && hits[i].distance < 0.1f)
             {
 
                _canMovingDown = false;
 
                 colid = true;
             }
-            if (hits[i].collider != null && hits[i].collider.tag == "End")
+            if (hits[i].collider != null && (hits[i].collider.tag == "End" || hits[i].collider.tag == "Change"))
             {
-                UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex + 1);
-
-                break;
+                ChangeLevel(hits[i].collider.tag);
             }
         }
 
@@ -495,8 +498,10 @@ public class Movement : MonoBehaviour
             //Case 2-2 : the player just land on the ground
             else if (!_canMovingDown)
             {
+                LandingSignalWithValue?.Invoke(_fallSpeed / _maxFallSpeed);
                 playerState = PlayerState.OnGround;
                 LandingSignal?.Invoke();
+
                 OnGroundStateEnter();
             };
 
@@ -563,6 +568,7 @@ public class Movement : MonoBehaviour
 
     private void OnDashStateEnter()
     {
+        DashSignal?.Invoke(_dashDuration);
         _isDashStopped = false;
         _lastDashStartDate = Time.time;
         _dashDirection = _isFacingRight ? 1 : -1;
@@ -598,6 +604,7 @@ public class Movement : MonoBehaviour
             if (_canMovingRight)
             {
                 _horizontalSpeed += _currentAcceleration * Time.deltaTime;
+                if (playerState == PlayerState.OnGround) { dustParticle.Play(); }
             }
         }
         else if (_isMovingLeft && _horizontalSpeed > -_maxSpeed)
@@ -609,6 +616,7 @@ public class Movement : MonoBehaviour
             if (_canMovingLeft)
             {
                 _horizontalSpeed -= _currentAcceleration * Time.deltaTime;
+                if (playerState == PlayerState.OnGround) { dustParticle.Play(); }
             }
         }
         else if (!_isMovingRight && !_isMovingLeft)
@@ -746,6 +754,7 @@ public class Movement : MonoBehaviour
         _lastJumpPressedDate = float.MinValue;
 
         JumpingSignal?.Invoke();
+        dustParticle.Play();
 
     }
 
@@ -760,6 +769,7 @@ public class Movement : MonoBehaviour
         _currentGravity = _gravityOnExtraJump;
 
         JumpingSignal?.Invoke();
+        dustParticle.Play();
     }
 
     private void ApplyJumpWall()
@@ -776,6 +786,8 @@ public class Movement : MonoBehaviour
             _horizontalSpeed = _horizontalSpeedWallJump;
             _onLeftWall = false;
         }
+        JumpingSignal?.Invoke();
+        dustParticle.Play();
     }
     #endregion
 
@@ -786,7 +798,25 @@ public class Movement : MonoBehaviour
         transform.position = _position;
     }
 
-   
+    private void ChangeLevel(string tag)
+    {
+        if (tag == "End")
+        {
+            UnityEngine.SceneManagement.SceneManager.LoadScene(3);
+        }
+        else
+        {
+            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex == 1)
+            {
+                UnityEngine.SceneManagement.SceneManager.LoadScene(2);
 
+            }
+            else
+            {
+                UnityEngine.SceneManagement.SceneManager.LoadScene(1);
+            }
+        }
+
+    }
 
 }

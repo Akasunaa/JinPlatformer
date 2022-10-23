@@ -194,6 +194,17 @@
                     "action": "ToggleHelp",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8430f0c3-3c4b-468a-831d-3afb9b3a48e2",
+                    "path": "<XInputController>/leftTrigger",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ToggleHelp",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }
