@@ -38,7 +38,6 @@ public class PlayerAnimations : MonoBehaviour
 
     private void OnLandingEvent()
     {
-        Debug.Log("Licorne patate");
         StartCoroutine(StrechAnimation(_horizontalStrech, _verticalShorten, _landingAnimTime));
     }
 

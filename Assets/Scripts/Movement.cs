@@ -179,8 +179,6 @@ public class Movement : MonoBehaviour
         CalculateJump();
 
         UpdatePlayerState();
-
-        print(_canMovingRight);
     }
 
     void FixedUpdate()
