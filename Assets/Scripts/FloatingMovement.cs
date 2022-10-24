@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class FloatingMovement : MonoBehaviour
 {
-    [SerializeField] private float _amplitude;
+    [SerializeField] private float _magnitude;
     [SerializeField] private float _loopDuration;
     private bool _startNewLoop;
     private Vector3 _initialPosition;
@@ -30,13 +30,13 @@ public class FloatingMovement : MonoBehaviour
 
         var timer = 0f;
         float interpolFactor = 1f;
-        Vector3 lowPosition = new Vector3(_initialPosition.x, _initialPosition.y - _amplitude, 0);
-        Vector3 highPosition = new Vector3(_initialPosition.x, _initialPosition.y + _amplitude , 0);
+        Vector3 lowPosition = new Vector3(_initialPosition.x, _initialPosition.y - _magnitude, 0);
+        Vector3 highPosition = new Vector3(_initialPosition.x, _initialPosition.y + _magnitude , 0);
 
         while (timer < _loopDuration)
         {
             interpolFactor = Mathf.Abs(timer / (_loopDuration * 0.5f) - 1f);
-            transform.position = Vector3.Lerp(lowPosition, highPosition, interpolFactor);
+            transform.position = Vector3.Lerp(lowPosition, highPosition, Mathf.SmoothStep(0f, 1f, interpolFactor));
             timer += Time.deltaTime;
             yield return null;
         }
