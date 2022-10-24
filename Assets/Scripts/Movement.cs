@@ -821,4 +821,9 @@ public class Movement : MonoBehaviour
 
     }
 
+    private void OnDestroy()
+    {
+        _rumble.StopRumble();
+    }
+
 }
