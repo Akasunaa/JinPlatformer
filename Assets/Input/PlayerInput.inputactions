@@ -186,6 +186,17 @@
                 },
                 {
                     "name": "",
+                    "id": "77c1b9a1-8625-4393-866a-5bc4afe442c8",
+                    "path": "<Keyboard>/shift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Dash",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "99b5dbc3-7c60-40e4-9dac-6c2a89fa44f1",
                     "path": "<Keyboard>/i",
                     "interactions": "",
