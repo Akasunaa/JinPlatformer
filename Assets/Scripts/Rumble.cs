@@ -59,15 +59,16 @@ public class Rumble : MonoBehaviour
 
     private void OnJumpEvent()
     {
-        RumbleConstant(0.2f, 0.4f, 0.1f);
+        RumbleConstant(0.1f, 0.3f, 0.1f);
     }
 
     private void OnDashEvent(float time)
     {
-        RumbleConstant(0.2f, 0.05f, time);
+        RumbleConstant(0.1f, 0.05f, time);
     }
     private void OnLandingEvent(float value)
     {
+        if (value < 0.5) { value = 0; }
         if (value > 0.7) { value = 1; }
         RumblePulse(1f*value, 3f*value, 0.15f, 0.1f);
     }
@@ -88,7 +89,6 @@ public class Rumble : MonoBehaviour
             activeRumbePattern = RumblePattern.Nothing;
             return;
         }
-        print(activeRumbePattern);
         var gamepad = GetGamepad();
         switch (activeRumbePattern)
         {
