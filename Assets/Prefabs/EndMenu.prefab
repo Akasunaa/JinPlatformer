@@ -1126,7 +1126,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Quit
+  m_text: QUIT
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 68714f8117f1d46fc998d36a8e1a790a, type: 2}
   m_sharedMaterial: {fileID: -1973720725211714016, guid: 68714f8117f1d46fc998d36a8e1a790a, type: 2}
@@ -1261,7 +1261,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Congrats ! \nThank you for playing :)"
+  m_text: "Congrats ! \nThank you for playIng :)"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 68714f8117f1d46fc998d36a8e1a790a, type: 2}
   m_sharedMaterial: {fileID: -1973720725211714016, guid: 68714f8117f1d46fc998d36a8e1a790a, type: 2}

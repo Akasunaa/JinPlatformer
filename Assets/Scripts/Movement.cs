@@ -145,9 +145,10 @@ public class Movement : MonoBehaviour
 
     #endregion
 
-    #region PARTICULE DECLARATION
+    #region CLASS DECLARATION
 
     [SerializeField] private ParticleSystem dustParticle;
+    private Rumble _rumble;
 
     #endregion
 
@@ -160,6 +161,7 @@ public class Movement : MonoBehaviour
     private void Start()
     {
         _box=GetComponent<BoxCollider2D>();
+        _rumble = GetComponent<Rumble>();
     }
 
     private void Update()
@@ -178,8 +180,7 @@ public class Movement : MonoBehaviour
 
         UpdatePlayerState();
 
-        print(playerState);
-
+        print(_canMovingRight);
     }
 
     void FixedUpdate()
@@ -304,7 +305,7 @@ public class Movement : MonoBehaviour
                 colid = true;
                 break;
             }
-            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "Boing" || hits[i].collider.tag == "OneWay" ) && hits[i].distance < 0.1f)
+            if (hits[i].collider != null && (hits[i].collider.tag == "Wall" || hits[i].collider.tag == "Boing" || hits[i].collider.tag == "OneWay" ) && _canMovingRight && hits[i].distance < 0.1f)
             {
                 _canMovingRight = false;
                 colid = true;
@@ -542,7 +543,7 @@ public class Movement : MonoBehaviour
 
     private bool CheckLaunchDash()
     {
-        return (_dashButtonJustPressed && (_lastDashStartDate + _dashCooldown < Time.time));
+        return (_dashButtonJustPressed && (_lastDashStartDate + _dashCooldown < Time.time) && ((_isFacingRight && _canMovingRight) || (!_isFacingRight &&_canMovingLeft)));
     }
 
     private void OnFallingStateEnter()
@@ -639,14 +640,14 @@ public class Movement : MonoBehaviour
     private void CalculateDashBrake() // fucntion responsible of dash brutal deceleration.
     {
         //If we bump into a wall during the dash, we set horizontal velocity to zero.
-        if(_dashDirection * _horizontalSpeed > 0)
+/*        if (_dashDirection * _horizontalSpeed > 0)
         {
-            if( (_dashDirection > 0 && !_canMovingRight) || (_dashDirection < 0 && !_canMovingLeft))
+            if ((_dashDirection > 0 && !_canMovingRight) || (_dashDirection < 0 && !_canMovingLeft))
             {
                 _horizontalSpeed = 0f;
                 return;
             }
-        }
+        }*/
 
         _horizontalSpeed -= _dashCounterForce * _dashDirection * Time.deltaTime;
         if (_dashDirection * _horizontalSpeed <= 0)
@@ -803,6 +804,7 @@ public class Movement : MonoBehaviour
         if (tag == "End")
         {
             UnityEngine.SceneManagement.SceneManager.LoadScene(3);
+            _rumble.StopRumble();
         }
         else
         {
