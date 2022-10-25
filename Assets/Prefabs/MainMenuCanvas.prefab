@@ -2860,7 +2860,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Jump /
+  m_text: 'Jump (Hold) /
 
     Double Jump'
   m_isRightToLeft: 0
