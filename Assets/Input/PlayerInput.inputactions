@@ -313,6 +313,17 @@
                     "action": "BackToMenu",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c670b075-0368-423e-8854-173fae83b01f",
+                    "path": "<Gamepad>/leftShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "BackToMenu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         },
